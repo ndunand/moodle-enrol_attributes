@@ -48,42 +48,6 @@ class enrol_attributes_edit_form extends moodleform {
         $mform->addElement('select', 'roleid', get_string('role'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
 
-/*
-        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_attributes'), array('optional' => true, 'defaultunit' => 86400));
-        $mform->setDefault('enrolperiod', $plugin->get_config('enrolperiod'));
-
-        $mform->addElement('date_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_attributes'), array('optional' => true));
-        $mform->setDefault('enrolstartdate', 0);
-
-        $mform->addElement('date_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_attributes'), array('optional' => true));
-        $mform->setDefault('enrolenddate', 0);
-
-        $options = array(0 => get_string('never'),
-                 1800 * 3600 * 24 => get_string('numdays', '', 1800),
-                 1000 * 3600 * 24 => get_string('numdays', '', 1000),
-                 365 * 3600 * 24 => get_string('numdays', '', 365),
-                 180 * 3600 * 24 => get_string('numdays', '', 180),
-                 150 * 3600 * 24 => get_string('numdays', '', 150),
-                 120 * 3600 * 24 => get_string('numdays', '', 120),
-                 90 * 3600 * 24 => get_string('numdays', '', 90),
-                 60 * 3600 * 24 => get_string('numdays', '', 60),
-                 30 * 3600 * 24 => get_string('numdays', '', 30),
-                 21 * 3600 * 24 => get_string('numdays', '', 21),
-                 14 * 3600 * 24 => get_string('numdays', '', 14),
-                 7 * 3600 * 24 => get_string('numdays', '', 7));
-        $mform->addElement('select', 'customint2', get_string('longtimenosee', 'enrol_attributes'), $options);
-        $mform->setDefault('customint2', $plugin->get_config('longtimenosee'));
-        $mform->addHelpButton('customint2', 'longtimenosee', 'enrol_attributes');
-
-        $mform->addElement('text', 'customint3', get_string('maxenrolled', 'enrol_attributes'));
-        $mform->setDefault('customint3', $plugin->get_config('maxenrolled'));
-        $mform->addHelpButton('customint3', 'maxenrolled', 'enrol_attributes');
-        $mform->setType('customint3', PARAM_INT);
-
-        $mform->addElement('advcheckbox', 'customint4', get_string('sendcoursewelcomemessage', 'enrol_attributes'));
-        $mform->setDefault('customint4', $plugin->get_config('sendcoursewelcomemessage'));
-        $mform->addHelpButton('customint4', 'sendcoursewelcomemessage', 'enrol_attributes');
-*/
         $mform->addElement('textarea', 'customtext1', get_string('attrsyntax', 'enrol_attributes'), array('cols'=>'60', 'rows'=>'8'));
         $mform->addHelpButton('customtext1', 'attrsyntax', 'enrol_attributes');
 
@@ -96,5 +60,24 @@ class enrol_attributes_edit_form extends moodleform {
 
         $this->set_data($instance);
     }
+
+
+    function add_action_buttons($cancel = true, $submitlabel=null){
+        if (is_null($submitlabel)){
+            $submitlabel = get_string('savechanges');
+        }
+        $mform =& $this->_form;
+        if ($cancel){
+            //when two elements we need a group
+            $buttonarray=array();
+            $buttonarray[] = &$mform->createElement('submit', 'submitbutton', $submitlabel);
+            $buttonarray[] = &$mform->createElement('cancel');
+            $buttonarray[] = &$mform->createElement('button', 'purge', get_string('purge', 'enrol_attributes'), array('onclick' => 'enrol_attributes_purge(\''.  addslashes(get_string('confirmpurge', 'enrol_attributes')).'\');'));
+            $buttonarray[] = &$mform->createElement('button', 'force', get_string('force', 'enrol_attributes'), array('onclick' => 'enrol_attributes_force(\''.  addslashes(get_string('confirmforce', 'enrol_attributes')).'\');'));
+            $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+            $mform->closeHeaderBefore('buttonar');
+        }
+    }
+
 
 }

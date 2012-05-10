@@ -33,28 +33,30 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
-            'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_PREVENT,
+            'teacher' => CAP_PREVENT,
+            'student' => CAP_PREVENT,
         )
     ),
 
-    'enrol/attributes:manage' => array(
+//    'enrol/attributes:manage' => array(
+//
+//        'captype' => 'write',
+//        'contextlevel' => CONTEXT_COURSE,
+//        'legacy' => array(
+//            'editingteacher' => CAP_ALLOW,
+//            'manager' => CAP_ALLOW,
+//        )
+//    ),
 
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW,
-        )
-    ),
-
-    'enrol/attributes:unenrolself' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
+//    'enrol/attributes:unenrolself' => array(
+//        'captype' => 'write',
+//        'contextlevel' => CONTEXT_COURSE,
+//        'legacy' => array(
 //            'student' => CAP_ALLOW,
-        )
-    ),
+//        )
+//    ),
 
     'enrol/attributes:unenrol' => array(
         'captype' => 'write',
