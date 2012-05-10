@@ -16,11 +16,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for attributes enrolment plugin.
- *
  * @package    enrol
  * @subpackage attributes
- * @copyright  2012 Nicolas Dunand {@link http://www.unil.ch/riset}
+ * @copyright  2012 Copyright Université de Lausanne, RISET {@link http://www.unil.ch/riset}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

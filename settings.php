@@ -16,18 +16,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Database enrolment plugin settings and presets.
- *
  * @package    enrol
  * @subpackage attributes
- * @copyright  2012 Nicolas Dunand {@link http://www.unil.ch/riset}
+ * @copyright  2012 Copyright Université de Lausanne, RISET {@link http://www.unil.ch/riset}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
-    
+
     $options = get_default_enrol_roles(get_context_instance(CONTEXT_SYSTEM));
     $student = get_archetype_roles('student');
     $student = reset($student);
