@@ -24,12 +24,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Enrol by user attributes';
+$string['pluginname'] = 'Enrol by user profile fields';
 $string['defaultrole'] = 'Default role';
 $string['defaultrole_desc'] = 'Default role used to enrol people with this plugin (each instance can override this).';
-$string['attrsyntax'] = 'User attributes boolean syntax.';
-$string['attrsyntax_help'] = '<p>One equation per line. Attributes are user profile attributes. An implicit logical AND binds lines together.</p><p>For instance,</p><p style="text-align:center; font-style:italic;">institution = myuniversity.edu<br />department = mathematics</p>';
+$string['attrsyntax'] = 'User profile fields rules';
+$string['attrsyntax_help'] = '<p>These rules can only use custom user profile fields.</p>';
 $string['attributes:config'] = 'Configure plugin instances';
 $string['attributes:manage'] = 'Manage enrolled users';
 $string['attributes:unenrol'] = 'Unenrol users from the course';
 $string['attributes:unenrolself'] = 'Unenrol self from the course';
+$string['ajax-error'] = 'An error occured';
+$string['ajax-okpurged'] = 'OK, enrolments have been purged';
+$string['ajax-okforced'] = 'OK, {$a} users have benn enrolled';
+$string['purge'] = 'Purge inscriptions';
+$string['force'] = 'Force inscriptions';
+$string['confirmforce'] = 'This will (re)enrol all users corresponding to this rule.';
+$string['confirmpurge'] = 'This will remove all enrolments corresponding to this rule.';

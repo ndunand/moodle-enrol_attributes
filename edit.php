@@ -83,7 +83,25 @@ else if ($data = $mform->get_data()) {
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('pluginname', 'enrol_attributes'));
 
+enrol_attributes_plugin::js_load('jquery-1.7.2.min');
+enrol_attributes_plugin::js_load('jquery.json-2.3.min');
+enrol_attributes_plugin::js_load('jquery.booleanEditor');
+enrol_attributes_plugin::js_load('javascript');
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'enrol_attributes'));
 $mform->display();
+
+/*
+// DEBUGGING : BEGIN
+debugging('<pre>'.print_r(json_decode($instance->customtext1), true).'</pre>', DEBUG_DEVELOPER);
+$debug_arraysql = enrol_attributes_plugin::arraysyntax_tosql(enrol_attributes_plugin::attrsyntax_toarray($instance->customtext1));
+debugging('<pre>'.print_r($debug_arraysql, true).'</pre>', DEBUG_DEVELOPER);
+$debug_sqlquery = 'SELECT DISTINCT u.id FROM mdl_user u '.$debug_arraysql['select'] . ' WHERE ' . $debug_arraysql['where'];
+debugging('<pre>'.print_r($debug_sqlquery, true).'</pre>', DEBUG_DEVELOPER);
+$debug_users = $DB->get_records_sql($debug_sqlquery);
+debugging('<pre>'.print_r(count($debug_users), true).'</pre>', DEBUG_DEVELOPER);
+// DEBUGGING : END
+*/
+
 echo $OUTPUT->footer();
