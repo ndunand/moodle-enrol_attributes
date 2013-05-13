@@ -24,6 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2011042510;
+$plugin->version = 2012080100;
+$plugin->requires  = 2011120100;
 
 $plugin->cron = 3600 * 6; // every 6 hours, just in case
