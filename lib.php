@@ -44,7 +44,7 @@ class enrol_attributes_plugin extends enrol_plugin {
 //        return false;
     }
 
-    public function js_load($filename) {
+    public static function js_load($filename) {
         global $PAGE;
         $jsurl = new moodle_url('/enrol/attributes/js/'.$filename.'.js');
         $PAGE->requires->js($jsurl);
@@ -88,7 +88,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         return $icons;
     }
 
-    public function attrsyntax_toarray($attrsyntax) { // TODO : protected
+    public static function attrsyntax_toarray($attrsyntax) { // TODO : protected
         global $DB;
 
         $attrsyntax_object = json_decode($attrsyntax);
@@ -105,13 +105,23 @@ class enrol_attributes_plugin extends enrol_plugin {
         );
     }
 
-    public function arraysyntax_tosql($arraysyntax) { // TODO : protected
+    public static function arraysyntax_tosql($arraysyntax) { // TODO : protected
         global $CFG;
         $select = '';
         $where = '1';
         static $join_id = 0;
 
         $customuserfields = $arraysyntax['customuserfields'];
+
+        foreach ($arraysyntax['rules'] as $rule) {
+            // first just check if we have a value 'ANY' to enroll all people :
+            if (isset($rule->value) && $rule->value == 'ANY') {
+                return array(
+                    'select' => '',
+                    'where'  => '1'
+                );
+            }
+        }
 
         foreach ($arraysyntax['rules'] as $rule) {
             if (isset($rule->cond_op)) {
@@ -134,7 +144,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                     // custom user field actually exists
                     $join_id++;
                     $select .= ' RIGHT JOIN '.$CFG->prefix.'user_info_data d'.$join_id.' ON d'.$join_id.'.userid = u.id';
-                    $where .= ' (d'.$join_id.'.fieldid = '.$customkey.' AND d'.$join_id.'.data = \''.$rule->value.'\')';
+                    $where .= ' (d'.$join_id.'.fieldid = '.$customkey.' AND ( d'.$join_id.'.data = \''.$rule->value.'\' OR d'.$join_id.'.data LIKE \'%;'.$rule->value.'\' OR d'.$join_id.'.data LIKE \''.$rule->value.';%\' OR d'.$join_id.'.data LIKE \'%;'.$rule->value.';%\' ))';
                 }
             }
         }
@@ -153,14 +163,49 @@ class enrol_attributes_plugin extends enrol_plugin {
         $this->process_enrolments();
     }
 
-    public function process_enrolments($eventdata = null, $instanceid = null) {
+    public static function process_login($eventdata) {
+        global $CFG, $DB;
+        // we just received the event from auth/shibboleth; check if well-formed:
+        if (!$eventdata->user || !$eventdata->shibattrs) {
+            return true;
+        }
+        // then make mapping, ensuring that necessary profile fields exist and Shibboleth attributes are provided:
+        $customfieldrecords = $DB->get_records('user_info_field');
+        $customfields = array();
+        foreach ($customfieldrecords as $customfieldrecord) {
+            $customfields[] = $customfieldrecord->shortname;
+        }
+        $mapping = array();
+        $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
+        foreach ($mappings_str as $mapping_str) {
+            if (preg_match('/^([a-zA-z0-9\-]+):(\w+)$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $eventdata->shibattrs)) {
+                $mapping[$matches[1]] = $matches[2];
+            }
+        }
+        // now update user profile data from Shibboleth params received as part of the event:
+        $user = $eventdata->user;
+        foreach ($mapping as $shibattr => $fieldname) {
+            if (isset($eventdata->shibattrs[$shibattr])) {
+                $propertyname = 'profile_field_'.$fieldname;
+                $user->$propertyname = $eventdata->shibattrs[$shibattr];
+            }
+        }
+        require_once($CFG->dirroot.'/user/profile/lib.php');
+        profile_save_data($user);
+        // last, process the actual enrolments:
+        self::process_enrolments($eventdata);
+    }
+
+    public static function process_enrolments($eventdata = null, $instanceid = null) {
         global $DB, $CFG;
         $nbenrolled = 0;
 
         if ($instanceid) {
+            // We're processing one particular instance, making sure it's active
             $enrol_attributes_records = $DB->get_records('enrol', array('enrol' => 'attributes', 'status' => 0, 'id' => $instanceid));
         }
         else {
+            // We're processing all active instances, because a user just logged in
             $enrol_attributes_records = $DB->get_records('enrol', array('enrol' => 'attributes', 'status' => 0));
         }
 
@@ -177,7 +222,7 @@ class enrol_attributes_plugin extends enrol_plugin {
             else { // called by cron or by construct
                 $where = ' WHERE 1';
             }
-            $where .= ' AND ';
+            $where .= ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($enrol_attributes_record->customtext1);
             $arraysql    = self::arraysyntax_tosql($arraysyntax);
 
@@ -188,6 +233,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                     mtrace('about to enrol user '.$user->id.' in course '.$enrol_attributes_record->courseid);
                 }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id, $enrol_attributes_record->roleid);
+//                mail('Nicolas.Dunand@unil.ch', 'xxxxxxxx', 'Enrolled USER id '.$user->id.' with role '.$enrol_attributes_record->roleid.' in course '.$enrol_attributes_record->courseid.'.');
                 add_to_log($enrol_attributes_record->courseid, 'course', 'enrol', '../enrol/users.php?id='.$enrol_attributes_record->courseid, $enrol_attributes_record->courseid);
                 $nbenrolled++;
             }
@@ -202,7 +248,7 @@ class enrol_attributes_plugin extends enrol_plugin {
     /*
      *
      */
-    function purge_instance($instanceid, $context) {
+    public static function purge_instance($instanceid, $context) {
         if (!$instanceid) {
             return false;
         }

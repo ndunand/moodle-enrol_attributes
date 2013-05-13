@@ -41,7 +41,9 @@ if (!$courseid || !$instanceid) {
     exit;
 }
 
-if($nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid)) {
+$nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
+
+if($nbenrolled !== false) {
     print_string('ajax-okforced', 'enrol_attributes', $nbenrolled);
 }
 else {

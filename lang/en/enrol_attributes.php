@@ -38,3 +38,5 @@ $string['purge'] = 'Purge inscriptions';
 $string['force'] = 'Force inscriptions';
 $string['confirmforce'] = 'This will (re)enrol all users corresponding to this rule.';
 $string['confirmpurge'] = 'This will remove all enrolments corresponding to this rule.';
+$string['mappings'] = 'Mappings';
+$string['mappings_desc'] = 'List of values (one per line), e.g. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';

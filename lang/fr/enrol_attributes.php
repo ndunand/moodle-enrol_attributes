@@ -38,3 +38,5 @@ $string['purge'] = 'Purger les inscriptions';
 $string['force'] = 'Forcer les inscriptions';
 $string['confirmforce'] = 'Ceci (ré)inscrira tous les utilisateurs correspondant à cette règle.';
 $string['confirmpurge'] = 'Ceci supprimera toutes les inscriptions correspondant à cette règle.';
+$string['mappings'] = 'Liens entre les attributs';
+$string['mappings_desc'] = 'Liste de valeurs (une par ligne), p.ex. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';

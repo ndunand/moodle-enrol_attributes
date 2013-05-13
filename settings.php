@@ -30,5 +30,6 @@ if ($ADMIN->fulltree) {
     $student = get_archetype_roles('student');
     $student = reset($student);
     $settings->add(new admin_setting_configselect('enrol_attributes/roleid', get_string('defaultrole', 'enrol_attributes'), get_string('defaultrole_desc', 'enrol_attributes'), $student->id, $options));
+    $settings->add(new admin_setting_configtextarea('enrol_attributes/mappings', get_string('mappings', 'enrol_attributes'), get_string('mappings_desc', 'enrol_attributes'), '',PARAM_TEXT, 60, 6));
 
 }
