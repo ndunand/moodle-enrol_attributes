@@ -22,10 +22,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$handlers = array (
-    'shib_user_login' => array (
-         'handlerfile'      => '/enrol/attributes/lib.php',
-         'handlerfunction'  => 'enrol_attributes_plugin::process_login',
-         'schedule'         => 'instant'
-     )
+$observers = array(
+
+    array(
+        'eventname'   => '\core\event\user_loggedin',
+        'callback'    => 'enrol_attributes_plugin::process_login',
+        'includefile' => '/enrol/attributes/lib.php',
+        'internal'    => true,
+        'priority'    => 9999,
+    ),
+
 );

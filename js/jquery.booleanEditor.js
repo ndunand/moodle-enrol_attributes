@@ -17,6 +17,9 @@
             { label: "SWITCHaai uniqueID", value: "aaiuniqueid" },
             { label: "Study Branch 3", value: "studybranch3" },
             { label: "Study Level", value: "studylevel" },
+            { label: "Staff Category", value: "staffcategory" },
+            { label: "Entitlement (contains)", value: "entitlement" },
+            { label: "Unil group membership (contains)", value: "unilmemberof" },
         ],
         operatorList: [
             {label: " = ", value: "=="},

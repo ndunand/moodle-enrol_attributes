@@ -40,3 +40,5 @@ $string['confirmforce'] = 'Ceci (ré)inscrira tous les utilisateurs correspondan
 $string['confirmpurge'] = 'Ceci supprimera toutes les inscriptions correspondant à cette règle.';
 $string['mappings'] = 'Liens entre les attributs';
 $string['mappings_desc'] = 'Liste de valeurs (une par ligne), p.ex. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';
+$string['removewhenexpired'] = 'Désinscrire après expiration des attributs';
+$string['removewhenexpired_help'] = 'Désinscrire les utilisateurs à la connexion si leurs attributs ne correspondent plus à la règle.';

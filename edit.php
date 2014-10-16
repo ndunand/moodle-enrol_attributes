@@ -29,7 +29,7 @@ $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = optional_param('id', 0, PARAM_INT); // instanceid
 
 $course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
-$context = get_context_instance(CONTEXT_COURSE, $course->id, MUST_EXIST);
+$context = context_course::instance($course->id);
 
 require_login($course);
 require_capability('enrol/attributes:config', $context);
@@ -66,11 +66,12 @@ else if ($data = $mform->get_data()) {
     if ($instance->id) {
         $instance->name           = $data->name;
         $instance->roleid         = $data->roleid;
+        $instance->customint1     = isset($data->customint1) ? ($data->customint1) : 0;
         $instance->customtext1    = $data->customtext1;
         $DB->update_record('enrol', $instance);
     }
     else {
-        $fields = array('name'=>$data->name, 'roleid'=>$data->roleid, 'customtext1'=>$data->customtext1);
+        $fields = array('name'=>$data->name, 'roleid'=>$data->roleid, 'customint1'=>isset($data->customint1), 'customtext1'=>$data->customtext1);
         $plugin->add_instance($course, $fields);
     }
 

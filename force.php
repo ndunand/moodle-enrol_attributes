@@ -31,7 +31,7 @@ $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = required_param('instanceid', PARAM_INT);
 
 $course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
-$context = get_context_instance(CONTEXT_COURSE, $course->id, MUST_EXIST);
+$context = context_course::instance($course->id);
 
 require_login($course);
 require_capability('enrol/attributes:config', $context);
@@ -42,6 +42,8 @@ if (!$courseid || !$instanceid) {
 }
 
 $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
+
+ob_end_clean();
 
 if($nbenrolled !== false) {
     print_string('ajax-okforced', 'enrol_attributes', $nbenrolled);

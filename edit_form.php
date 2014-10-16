@@ -36,6 +36,7 @@ class enrol_attributes_edit_form extends moodleform {
         $mform->addElement('header', 'header', get_string('pluginname', 'enrol_attributes'));
 
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
+        $mform->setType('name', PARAM_TEXT);
 
         if ($instance->id) {
             $roles = get_default_enrol_roles($context, $instance->roleid);
@@ -47,6 +48,9 @@ class enrol_attributes_edit_form extends moodleform {
 
         $mform->addElement('textarea', 'customtext1', get_string('attrsyntax', 'enrol_attributes'), array('cols'=>'60', 'rows'=>'8'));
         $mform->addHelpButton('customtext1', 'attrsyntax', 'enrol_attributes');
+
+        $mform->addElement('checkbox', 'customint1', get_string('removewhenexpired', 'enrol_attributes'));
+        $mform->addHelpButton('customint1', 'removewhenexpired', 'enrol_attributes');
 
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);

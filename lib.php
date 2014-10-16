@@ -56,7 +56,7 @@ class enrol_attributes_plugin extends enrol_plugin {
      * @return moodle_url page url
      */
     public function get_newinstance_link($courseid) {
-        $context = get_context_instance(CONTEXT_COURSE, $courseid, MUST_EXIST);
+        $context = context_course::instance($courseid);
 
         if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/attributes:config', $context)) {
             return NULL;
@@ -76,7 +76,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         if ($instance->enrol !== 'attributes') {
             throw new coding_exception('invalid enrol instance!');
         }
-        $context = get_context_instance(CONTEXT_COURSE, $instance->courseid);
+        $context = context_course::instance($instance->courseid);
 
         $icons = array();
 
@@ -163,10 +163,10 @@ class enrol_attributes_plugin extends enrol_plugin {
         $this->process_enrolments();
     }
 
-    public static function process_login($eventdata) {
+    public static function process_login(\core\event\user_loggedin $event) {
         global $CFG, $DB;
         // we just received the event from auth/shibboleth; check if well-formed:
-        if (!$eventdata->user || !$eventdata->shibattrs) {
+        if (!$event->userid || $_SERVER['SCRIPT_FILENAME'] !== $CFG->dirroot.'/auth/shibboleth/index.php') {
             return true;
         }
         // then make mapping, ensuring that necessary profile fields exist and Shibboleth attributes are provided:
@@ -178,45 +178,77 @@ class enrol_attributes_plugin extends enrol_plugin {
         $mapping = array();
         $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
         foreach ($mappings_str as $mapping_str) {
-            if (preg_match('/^([a-zA-z0-9\-]+):(\w+)$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $eventdata->shibattrs)) {
+            if (preg_match('/^([a-zA-z0-9\-]+):(\w+)$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $_SERVER)) {
                 $mapping[$matches[1]] = $matches[2];
             }
         }
         // now update user profile data from Shibboleth params received as part of the event:
-        $user = $eventdata->user;
+        $user = $DB->get_record('user', array('id' => $event->userid), '*', MUST_EXIST);
         foreach ($mapping as $shibattr => $fieldname) {
-            if (isset($eventdata->shibattrs[$shibattr])) {
+            if (isset($_SERVER[$shibattr])) {
                 $propertyname = 'profile_field_'.$fieldname;
-                $user->$propertyname = $eventdata->shibattrs[$shibattr];
+                $user->$propertyname = $_SERVER[$shibattr];
             }
         }
         require_once($CFG->dirroot.'/user/profile/lib.php');
         profile_save_data($user);
         // last, process the actual enrolments:
-        self::process_enrolments($eventdata);
+        self::process_enrolments($event);
     }
 
-    public static function process_enrolments($eventdata = null, $instanceid = null) {
-        global $DB, $CFG;
+    public static function process_enrolments($event = null, $instanceid = null) {
+        global $DB;
         $nbenrolled = 0;
+        $possible_unenrolments = array();
 
         if ($instanceid) {
             // We're processing one particular instance, making sure it's active
             $enrol_attributes_records = $DB->get_records('enrol', array('enrol' => 'attributes', 'status' => 0, 'id' => $instanceid));
         }
         else {
-            // We're processing all active instances, because a user just logged in
+            // We're processing all active instances,
+            // because a user just logged in
+            // OR we're running the cron
             $enrol_attributes_records = $DB->get_records('enrol', array('enrol' => 'attributes', 'status' => 0));
+            if (!is_null($event)) {
+                // Let's check if there are any potential unenroling instances
+                $userid = (int)$event->userid;
+                $possible_unenrolments = $DB->get_records_sql("SELECT id, enrolid FROM {user_enrolments} WHERE userid = ? AND status = 0 AND enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 = 1 ) ", array($userid));
+            }
         }
 
+        // are we to unenrol from anywhere?
+        foreach ($possible_unenrolments as $id => $user_enrolment) {
+
+            $unenrol_attributes_record = $DB->get_record('enrol', array('enrol' => 'attributes', 'status' => 0, 'customint1' => 1, 'id' => $user_enrolment->enrolid));
+            if (!$unenrol_attributes_record) {
+                continue;
+            }
+
+            $select = 'SELECT DISTINCT u.id FROM mdl_user u';
+            $where = ' WHERE u.id='.$userid.' AND u.deleted=0 AND ';
+            $arraysyntax = self::attrsyntax_toarray($unenrol_attributes_record->customtext1);
+            $arraysql    = self::arraysyntax_tosql($arraysyntax);
+            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where']);
+
+            if (!array_key_exists($userid, $users)) {
+                $enrol_attributes_instance = new enrol_attributes_plugin();
+                $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$userid);
+            }
+
+        }
+
+//        return 0; // TODO : remove!
+
+        // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {
 
             $enrol_attributes_instance = new enrol_attributes_plugin();
             $enrol_attributes_instance->name = $enrol_attributes_record->name;
 
             $select = 'SELECT DISTINCT u.id FROM mdl_user u';
-            if ($eventdata) { // called by an event
-                $userid = (int)$eventdata->user->id;
+            if ($event) { // called by an event, i.e. user login
+                $userid = (int)$event->userid;
                 $where = ' WHERE u.id='.$userid;
             }
             else { // called by cron or by construct
@@ -228,18 +260,16 @@ class enrol_attributes_plugin extends enrol_plugin {
 
             $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where']);
             foreach ($users as $user) {
-                if (!$eventdata && !$instanceid) {
-                    // we only want output if runnning within the cron
-                    mtrace('about to enrol user '.$user->id.' in course '.$enrol_attributes_record->courseid);
-                }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id, $enrol_attributes_record->roleid);
-//                mail('Nicolas.Dunand@unil.ch', 'xxxxxxxx', 'Enrolled USER id '.$user->id.' with role '.$enrol_attributes_record->roleid.' in course '.$enrol_attributes_record->courseid.'.');
-                add_to_log($enrol_attributes_record->courseid, 'course', 'enrol', '../enrol/users.php?id='.$enrol_attributes_record->courseid, $enrol_attributes_record->courseid);
                 $nbenrolled++;
             }
 
         }
 
+        if (!$event && !$instanceid) {
+            // we only want output if runnning within the cron
+            mtrace('enrol_attributes : enrolled '.$nbenrolled.' users.');
+        }
         return $nbenrolled;
 
     }
@@ -278,7 +308,7 @@ class enrol_attributes_plugin extends enrol_plugin {
              throw new coding_exception('Invalid enrol instance type!');
         }
 
-        $context = get_context_instance(CONTEXT_COURSE, $instance->courseid);
+        $context = context_course::instance($instance->courseid);
         if (has_capability('enrol/attributes:config', $context)) {
             $managelink = new moodle_url('/enrol/attributes/edit.php', array('courseid' => $instance->courseid, 'id' => $instance->id));
             $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);

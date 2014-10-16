@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
 
-    $options = get_default_enrol_roles(get_context_instance(CONTEXT_SYSTEM));
+    $options = get_default_enrol_roles(context_system::instance());
     $student = get_archetype_roles('student');
     $student = reset($student);
     $settings->add(new admin_setting_configselect('enrol_attributes/roleid', get_string('defaultrole', 'enrol_attributes'), get_string('defaultrole_desc', 'enrol_attributes'), $student->id, $options));
