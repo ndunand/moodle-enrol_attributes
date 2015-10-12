@@ -282,6 +282,9 @@ class enrol_attributes_plugin extends enrol_plugin {
 
             $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where']);
             foreach ($users as $user) {
+                if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
+                    continue;
+                }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id, $enrol_attributes_record->roleid);
                 $nbenrolled++;
             }
