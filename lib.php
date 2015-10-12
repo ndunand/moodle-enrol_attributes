@@ -66,6 +66,28 @@ class enrol_attributes_plugin extends enrol_plugin {
     }
 
     /**
+     * Is it possible to delete enrol instance via standard UI?
+     *
+     * @param object $instance
+     * @return bool
+     */
+    public function can_delete_instance($instance) {
+        $context = context_course::instance($instance->courseid);
+        return has_capability('enrol/attributes:config', $context);
+    }
+
+    /**
+     * Is it possible to hide/show enrol instance via standard UI?
+     *
+     * @param stdClass $instance
+     * @return bool
+     */
+    public function can_hide_show_instance($instance) {
+        $context = context_course::instance($instance->courseid);
+        return has_capability('enrol/attributes:config', $context);
+    }
+
+    /**
      * Returns edit icons for the page with list of instances
      * @param stdClass $instance
      * @return array
