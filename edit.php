@@ -81,7 +81,7 @@ else if ($data = $mform->get_data()) {
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('pluginname', 'enrol_attributes'));
 
-enrol_attributes_plugin::js_load('jquery-1.7.2.min');
+$PAGE->requires->jquery();
 enrol_attributes_plugin::js_load('jquery.json-2.3.min');
 enrol_attributes_plugin::js_load('jquery.booleanEditor');
 enrol_attributes_plugin::js_load('javascript');
