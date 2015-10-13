@@ -25,10 +25,35 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
 
-    $options = get_default_enrol_roles(context_system::instance());
-    $student = get_archetype_roles('student');
-    $student = array_shift($student);
-    $settings->add(new admin_setting_configselect('enrol_attributes/default_roleid', get_string('defaultrole', 'enrol_attributes'), get_string('defaultrole_desc', 'enrol_attributes'), $student->id, $options));
-    $settings->add(new admin_setting_configtextarea('enrol_attributes/mappings', get_string('mappings', 'enrol_attributes'), get_string('mappings_desc', 'enrol_attributes'), '',PARAM_TEXT, 60, 6));
+    // 1. Default role
 
+    $options = get_default_enrol_roles(context_system::instance());
+
+    $student = get_archetype_roles('student');
+    $student_role = array_shift($student);
+
+    //    $settings->add(new admin_setting_heading('enrol_myunil_defaults', get_string('enrolinstancedefaults', 'admin'),
+    //            ''));
+    $settings->add(new admin_setting_configselect('enrol_attributes/default_roleid',
+            get_string('defaultrole', 'enrol_attributes'), get_string('defaultrole_desc', 'enrol_attributes'),
+            $student_role->id, $options));
+
+    // 2. Fields to use in the selector
+    $customfieldrecords = $DB->get_records('user_info_field');
+    $customfields = [];
+    foreach ($customfieldrecords as $customfieldrecord) {
+        $customfields[$customfieldrecord->shortname] = $customfieldrecord->name;
+    }
+    asort($customfields);
+    $settings->add(new admin_setting_configmultiselect('enrol_attributes/profilefields',
+            get_string('profilefields', 'enrol_attributes'),
+            get_string('profilefields_desc', 'enrol_attributes'), [], $customfields));
+
+    // 3. Fields to update via Shibboleth login
+    if (in_array('shibboleth', get_enabled_auth_plugins())) {
+        $settings->add(new admin_setting_configtextarea('enrol_attributes/mappings',
+                get_string('mappings', 'enrol_attributes'), get_string('mappings_desc', 'enrol_attributes'), '',
+                PARAM_TEXT, 60, 10));
+    }
 }
+

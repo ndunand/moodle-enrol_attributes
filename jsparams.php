@@ -28,21 +28,18 @@ header('Content-type: application/javascript');
 
 
 $customfieldrecords = $DB->get_records('user_info_field');
-
 $customfields = array();
-
 foreach ($customfieldrecords as $customfieldrecord) {
     $customfields[$customfieldrecord->shortname] = $customfieldrecord->name;
 }
 
 $items = array();
 
-$mappings_str = get_config('enrol_attributes', 'mappings');
-$mappings = explode("\n", str_replace("\r", '', $mappings_str));
+$profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
 
-foreach ($mappings as $mapping) {
-    if (preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping, $matches) && array_key_exists($matches[2], $customfields)) {
-        $items[] = array('label' => $customfields[$matches[2]], 'value' => $matches[2]);
+foreach ($profilefields as $profilefield) {
+    if (array_key_exists($profilefield, $customfields)) {
+        $items[] = array('value' => $profilefield, 'label' => $customfields[$profilefield]);
     }
 }
 
