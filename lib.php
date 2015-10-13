@@ -36,11 +36,7 @@ class enrol_attributes_plugin extends enrol_plugin {
      * @return bool
      */
     public function instance_deleteable($instance) {
-        return true; // anyway
-//        if (!enrol_is_enabled('attributes')) {
-//            return true;
-//        }
-//        return false;
+        return true;
     }
 
     /**
@@ -52,6 +48,11 @@ class enrol_attributes_plugin extends enrol_plugin {
         $context = context_course::instance($courseid);
 
         if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/attributes:config', $context)) {
+            return NULL;
+        }
+        $configured_profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
+        if (!strlen(array_shift($configured_profilefields))) {
+            // no profile fields are configured for this plugin
             return NULL;
         }
         // multiple instances supported - different roles with different password
@@ -181,7 +182,7 @@ class enrol_attributes_plugin extends enrol_plugin {
     public static function process_login(\core\event\user_loggedin $event) {
         global $CFG, $DB;
         // we just received the event from auth/shibboleth; check if well-formed:
-        if (!$event->userid || $_SERVER['SCRIPT_FILENAME'] !== $CFG->dirroot.'/auth/shibboleth/index.php') {
+        if (!in_array('shibboleth', get_enabled_auth_plugins()) || !$event->userid || $_SERVER['SCRIPT_FILENAME'] !== $CFG->dirroot.'/auth/shibboleth/index.php') {
             return true;
         }
         // then make mapping, ensuring that necessary profile fields exist and Shibboleth attributes are provided:
@@ -258,6 +259,13 @@ class enrol_attributes_plugin extends enrol_plugin {
         // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {
 
+            $rules = json_decode($enrol_attributes_record->customtext1)->rules;
+            $configured_profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
+            foreach ($rules as $rule) {
+                if (!in_array($rule->param, $configured_profilefields)) {
+                    break 2;
+                }
+            }
             $enrol_attributes_instance = new enrol_attributes_plugin();
             $enrol_attributes_instance->name = $enrol_attributes_record->name;
 
