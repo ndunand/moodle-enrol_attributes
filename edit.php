@@ -82,9 +82,10 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('pluginname', 'enrol_attributes'));
 
 $PAGE->requires->jquery();
-enrol_attributes_plugin::js_load('jquery.json-2.3.min');
-enrol_attributes_plugin::js_load('jquery.booleanEditor');
-enrol_attributes_plugin::js_load('javascript');
+$PAGE->requires->js('/enrol/attributes/js/jquery.json-2.3.min.js');
+$PAGE->requires->js('/enrol/attributes/jsparams.php');
+$PAGE->requires->js('/enrol/attributes/js/jquery.booleanEditor.js');
+$PAGE->requires->js('/enrol/attributes/js/javascript.js');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'enrol_attributes'));

@@ -11,16 +11,7 @@
             rules: [],
             change: null
         },
-        paramList: [
-            { label: "Home Organization", value: "homeorganization" },
-            { label: "Home Organization Type", value: "homeorganizationtype" },
-            { label: "SWITCHaai uniqueID", value: "aaiuniqueid" },
-            { label: "Study Branch 3", value: "studybranch3" },
-            { label: "Study Level", value: "studylevel" },
-            { label: "Staff Category", value: "staffcategory" },
-            { label: "Entitlement (contains)", value: "entitlement" },
-            { label: "Unil group membership (contains)", value: "unilmemberof" },
-        ],
+        paramList: M.enrol_attributes.paramList,
         operatorList: [
             {label: " = ", value: "=="},
 //             {label: "=/=", value: "!="},

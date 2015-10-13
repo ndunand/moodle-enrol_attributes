@@ -39,6 +39,6 @@ $string['force'] = 'Force inscriptions';
 $string['confirmforce'] = 'This will (re)enrol all users corresponding to this rule.';
 $string['confirmpurge'] = 'This will remove all enrolments corresponding to this rule.';
 $string['mappings'] = 'Mappings';
-$string['mappings_desc'] = 'List of values (one per line), e.g. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';
+$string['mappings_desc'] = 'List of values (one per line), <br>in the form: <code>server environment variable : extended user profile field shortname</code>, p.ex. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';
 $string['removewhenexpired'] = 'Unenrol after attributes expiration';
 $string['removewhenexpired_help'] = 'Unenrol users upon login if they don\'t match the attribute rule anymore.';

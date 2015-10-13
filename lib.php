@@ -44,12 +44,6 @@ class enrol_attributes_plugin extends enrol_plugin {
 //        return false;
     }
 
-    public static function js_load($filename) {
-        global $PAGE;
-        $jsurl = new moodle_url('/enrol/attributes/js/'.$filename.'.js');
-        $PAGE->requires->js($jsurl);
-    }
-
     /**
      * Returns link to page which may be used to add new instance of enrolment plugin in course.
      * @param int $courseid
@@ -200,7 +194,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         $mapping = array();
         $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
         foreach ($mappings_str as $mapping_str) {
-            if (preg_match('/^([a-zA-z0-9\-]+):(\w+)$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $_SERVER)) {
+            if (preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $_SERVER)) {
                 $mapping[$matches[1]] = $matches[2];
             }
         }
@@ -259,8 +253,6 @@ class enrol_attributes_plugin extends enrol_plugin {
             }
 
         }
-
-//        return 0; // TODO : remove!
 
         // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {

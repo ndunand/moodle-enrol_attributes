@@ -41,10 +41,10 @@ class enrol_attributes_edit_form extends moodleform {
         if ($instance->id) {
             $roles = get_default_enrol_roles($context, $instance->roleid);
         } else {
-            $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
+            $roles = get_default_enrol_roles($context, $plugin->get_config('default_roleid'));
         }
         $mform->addElement('select', 'roleid', get_string('role'), $roles);
-        $mform->setDefault('roleid', $plugin->get_config('roleid'));
+        $mform->setDefault('roleid', $plugin->get_config('default_roleid'));
 
         $mform->addElement('textarea', 'customtext1', get_string('attrsyntax', 'enrol_attributes'), array('cols'=>'60', 'rows'=>'8'));
         $mform->addHelpButton('customtext1', 'attrsyntax', 'enrol_attributes');

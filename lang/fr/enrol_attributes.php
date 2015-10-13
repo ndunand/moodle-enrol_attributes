@@ -39,6 +39,6 @@ $string['force'] = 'Forcer les inscriptions';
 $string['confirmforce'] = 'Ceci (ré)inscrira tous les utilisateurs correspondant à cette règle.';
 $string['confirmpurge'] = 'Ceci supprimera toutes les inscriptions correspondant à cette règle.';
 $string['mappings'] = 'Liens entre les attributs';
-$string['mappings_desc'] = 'Liste de valeurs (une par ligne), p.ex. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';
+$string['mappings_desc'] = 'Liste de valeurs (une par ligne), <br>de la forme : <code>variable d\'environnement du serveur : nom abrégé du champ du profil utilisateur étendu</code>, p.ex. : <br /><code>Shib-SwissEP-HomeOrganizationType:homeorganizationtype</code>';
 $string['removewhenexpired'] = 'Désinscrire après expiration des attributs';
 $string['removewhenexpired_help'] = 'Désinscrire les utilisateurs à la connexion si leurs attributs ne correspondent plus à la règle.';
