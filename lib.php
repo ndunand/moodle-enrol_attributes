@@ -198,16 +198,18 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $mapping[$matches[1]] = $matches[2];
             }
         }
-        // now update user profile data from Shibboleth params received as part of the event:
-        $user = $DB->get_record('user', array('id' => $event->userid), '*', MUST_EXIST);
-        foreach ($mapping as $shibattr => $fieldname) {
-            if (isset($_SERVER[$shibattr])) {
-                $propertyname = 'profile_field_'.$fieldname;
-                $user->$propertyname = $_SERVER[$shibattr];
+        if (count($mapping)) {
+            // now update user profile data from Shibboleth params received as part of the event:
+            $user = $DB->get_record('user', ['id' => $event->userid], '*', MUST_EXIST);
+            foreach ($mapping as $shibattr => $fieldname) {
+                if (isset($_SERVER[$shibattr])) {
+                    $propertyname = 'profile_field_' . $fieldname;
+                    $user->$propertyname = $_SERVER[$shibattr];
+                }
             }
+            require_once($CFG->dirroot . '/user/profile/lib.php');
+            profile_save_data($user);
         }
-        require_once($CFG->dirroot.'/user/profile/lib.php');
-        profile_save_data($user);
         // last, process the actual enrolments:
         self::process_enrolments($event);
     }
