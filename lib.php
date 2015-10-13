@@ -262,6 +262,9 @@ class enrol_attributes_plugin extends enrol_plugin {
             $rules = json_decode($enrol_attributes_record->customtext1)->rules;
             $configured_profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
             foreach ($rules as $rule) {
+                if (!isset($rule->param)) {
+                    break;
+                }
                 if (!in_array($rule->param, $configured_profilefields)) {
                     break 2;
                 }
