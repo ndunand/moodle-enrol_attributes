@@ -166,7 +166,8 @@ class enrol_attributes_plugin extends enrol_plugin {
         }
 
         // ugly hack:
-        $where = str_replace('1 AND ', ' ', str_replace('1 OR ', ' ', $where));
+        $where = preg_replace('/^1 AND/', '', $where);
+        $where = preg_replace('/^1 OR/', '', $where);
         $where = preg_replace('/^(1)/', '', $where);
 
         return array(

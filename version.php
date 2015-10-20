@@ -23,10 +23,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2015101300;
+$plugin->version = 2015101301;
 $plugin->requires  = 2014051200; // Moodle 2.7
 $plugin->component = 'enrol_attributes';
-$plugin->release = 'Version 2.0 for Moodle 2.7-2.9 (build 2015101300)';
+$plugin->release = '2.0.1 for Moodle 2.7-2.9 (build 2015101301)';
 $plugin->maturity  = MATURITY_STABLE;
 
 $plugin->cron = 3600 * 6; // every 6 hours
