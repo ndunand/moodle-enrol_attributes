@@ -165,7 +165,6 @@ class enrol_attributes_plugin extends enrol_plugin {
             }
         }
 
-        // ugly hack:
         $where = preg_replace('/^1 AND/', '', $where);
         $where = preg_replace('/^1 OR/', '', $where);
         $where = preg_replace('/^(1)/', '', $where);
@@ -182,36 +181,40 @@ class enrol_attributes_plugin extends enrol_plugin {
 
     public static function process_login(\core\event\user_loggedin $event) {
         global $CFG, $DB;
-        // we just received the event from auth/shibboleth; check if well-formed:
-        if (!in_array('shibboleth', get_enabled_auth_plugins()) || !$event->userid || $_SERVER['SCRIPT_FILENAME'] !== $CFG->dirroot.'/auth/shibboleth/index.php') {
+        // we just received the event from the authentication system; check if well-formed:
+        if (!$event->userid) {
+            // didn't get an user ID, return as there is nothing we can do
             return true;
         }
-        // then make mapping, ensuring that necessary profile fields exist and Shibboleth attributes are provided:
-        $customfieldrecords = $DB->get_records('user_info_field');
-        $customfields = array();
-        foreach ($customfieldrecords as $customfieldrecord) {
-            $customfields[] = $customfieldrecord->shortname;
-        }
-        $mapping = array();
-        $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
-        foreach ($mappings_str as $mapping_str) {
-            if (preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $_SERVER)) {
-                $mapping[$matches[1]] = $matches[2];
+        if (in_array('shibboleth', get_enabled_auth_plugins()) && $_SERVER['SCRIPT_FILENAME'] == $CFG->dirroot.'/auth/shibboleth/index.php') {
+            // we did get this event from the Shibboleth authentication plugin,
+            // so let's try to make the relevant mappings, ensuring that necessary profile fields exist and Shibboleth attributes are provided:
+            $customfieldrecords = $DB->get_records('user_info_field');
+            $customfields = array();
+            foreach ($customfieldrecords as $customfieldrecord) {
+                $customfields[] = $customfieldrecord->shortname;
             }
-        }
-        if (count($mapping)) {
-            // now update user profile data from Shibboleth params received as part of the event:
-            $user = $DB->get_record('user', ['id' => $event->userid], '*', MUST_EXIST);
-            foreach ($mapping as $shibattr => $fieldname) {
-                if (isset($_SERVER[$shibattr])) {
-                    $propertyname = 'profile_field_' . $fieldname;
-                    $user->$propertyname = $_SERVER[$shibattr];
+            $mapping = array();
+            $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
+            foreach ($mappings_str as $mapping_str) {
+                if (preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches) && in_array($matches[2], $customfields) && array_key_exists($matches[1], $_SERVER)) {
+                    $mapping[$matches[1]] = $matches[2];
                 }
             }
-            require_once($CFG->dirroot . '/user/profile/lib.php');
-            profile_save_data($user);
+            if (count($mapping)) {
+                // now update user profile data from Shibboleth params received as part of the event:
+                $user = $DB->get_record('user', ['id' => $event->userid], '*', MUST_EXIST);
+                foreach ($mapping as $shibattr => $fieldname) {
+                    if (isset($_SERVER[$shibattr])) {
+                        $propertyname = 'profile_field_' . $fieldname;
+                        $user->$propertyname = $_SERVER[$shibattr];
+                    }
+                }
+                require_once($CFG->dirroot . '/user/profile/lib.php');
+                profile_save_data($user);
+            }
         }
-        // last, process the actual enrolments:
+        // last, process the actual enrolments, whether we're using Shibboleth authentication or not:
         self::process_enrolments($event);
     }
 
