@@ -112,7 +112,7 @@ class enrol_attributes_plugin extends enrol_plugin {
 
         $customuserfields = array();
         foreach ($DB->get_records('user_info_field') as $customfieldrecord) {
-            $customuserfields[$customfieldrecord->id] = strtolower($customfieldrecord->shortname);
+            $customuserfields[$customfieldrecord->id] = $customfieldrecord->shortname;
         }
 
         return array(
