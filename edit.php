@@ -90,17 +90,17 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'enrol_attributes'));
 $mform->display();
 
-/*
 // DEBUGGING : BEGIN
-debugging('<pre>'.print_r(json_decode($instance->customtext1), true).'</pre>', DEBUG_DEVELOPER);
-$debug_arraysql = enrol_attributes_plugin::arraysyntax_tosql(enrol_attributes_plugin::attrsyntax_toarray($instance->customtext1));
-debugging('<pre>'.print_r($debug_arraysql, true).'</pre>', DEBUG_DEVELOPER);
+debugging('customtext1= '.print_r(json_decode($instance->customtext1), true), DEBUG_DEVELOPER);
+$debug_fieldsandrules = enrol_attributes_plugin::attrsyntax_toarray($instance->customtext1);
+debugging('fieldsandrules= '.print_r($debug_fieldsandrules, true), DEBUG_DEVELOPER);
+$debug_arraysql = enrol_attributes_plugin::arraysyntax_tosql($debug_fieldsandrules);
+debugging('arraysql= '.print_r($debug_arraysql, true), DEBUG_DEVELOPER);
 $debug_sqlquery = 'SELECT DISTINCT u.id FROM mdl_user u '.$debug_arraysql['select'] . ' WHERE ' . $debug_arraysql['where'];
-debugging('<pre>'.print_r($debug_sqlquery, true).'</pre>', DEBUG_DEVELOPER);
+debugging('sqlquery= '.print_r($debug_sqlquery, true), DEBUG_DEVELOPER);
 $debug_users = $DB->get_records_sql($debug_sqlquery);
-debugging('<pre>'.print_r(count($debug_users), true).'</pre>', DEBUG_DEVELOPER);
+debugging('countusers= '.print_r(count($debug_users), true), DEBUG_DEVELOPER);
 // DEBUGGING : END
-*/
 
 echo $OUTPUT->footer();
 
