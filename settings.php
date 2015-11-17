@@ -40,14 +40,16 @@ if ($ADMIN->fulltree) {
 
     // 2. Fields to use in the selector
     $customfieldrecords = $DB->get_records('user_info_field');
-    $customfields = [];
-    foreach ($customfieldrecords as $customfieldrecord) {
-        $customfields[$customfieldrecord->shortname] = $customfieldrecord->name;
+    if ($customfieldrecords) {
+        $customfields = [];
+        foreach ($customfieldrecords as $customfieldrecord) {
+            $customfields[$customfieldrecord->shortname] = $customfieldrecord->name;
+        }
+        asort($customfields);
+        $settings->add(new admin_setting_configmultiselect('enrol_attributes/profilefields',
+                get_string('profilefields', 'enrol_attributes'), get_string('profilefields_desc', 'enrol_attributes'),
+                [], $customfields));
     }
-    asort($customfields);
-    $settings->add(new admin_setting_configmultiselect('enrol_attributes/profilefields',
-            get_string('profilefields', 'enrol_attributes'),
-            get_string('profilefields_desc', 'enrol_attributes'), [], $customfields));
 
     // 3. Fields to update via Shibboleth login
     if (in_array('shibboleth', get_enabled_auth_plugins())) {
