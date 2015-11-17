@@ -102,9 +102,9 @@ if ($instanceid) {
     debugging('sqlquery= ' . print_r($debug_sqlquery, true), DEBUG_DEVELOPER);
     $debug_users = $DB->get_records_sql($debug_sqlquery);
     debugging('countusers= ' . print_r(count($debug_users), true), DEBUG_DEVELOPER);
-    debugging('force.php DEBUGGING:', DEBUG_DEVELOPER);
-    $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
-    debugging('nbenrolled= ' . print_r($nbenrolled, true), DEBUG_DEVELOPER);
+//    debugging('force.php DEBUGGING:', DEBUG_DEVELOPER);
+//    $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
+//    debugging('nbenrolled= ' . print_r($nbenrolled, true), DEBUG_DEVELOPER);
 }
 // DEBUGGING : END
 
