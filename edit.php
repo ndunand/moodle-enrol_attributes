@@ -98,7 +98,7 @@ if ($instanceid) {
     $debug_arraysql = enrol_attributes_plugin::arraysyntax_tosql($debug_fieldsandrules);
     debugging('arraysql= ' . print_r($debug_arraysql, true), DEBUG_DEVELOPER);
     $debug_sqlquery =
-            'SELECT DISTINCT u.id FROM mdl_user u ' . $debug_arraysql['select'] . ' WHERE ' . $debug_arraysql['where'];
+            'SELECT DISTINCT u.id FROM '.$CFG->prefix.'user u ' . $debug_arraysql['select'] . ' WHERE ' . $debug_arraysql['where'];
     debugging('sqlquery= ' . print_r($debug_sqlquery, true), DEBUG_DEVELOPER);
     $debug_users = $DB->get_records_sql($debug_sqlquery);
     debugging('countusers= ' . print_r(count($debug_users), true), DEBUG_DEVELOPER);
