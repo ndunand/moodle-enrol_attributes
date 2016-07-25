@@ -219,7 +219,7 @@ class enrol_attributes_plugin extends enrol_plugin {
     }
 
     public static function process_enrolments($event = null, $instanceid = null) {
-        global $CFG, $DB;
+        global $DB;
         $nbenrolled = 0;
         $possible_unenrolments = array();
 
@@ -247,7 +247,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 continue;
             }
 
-            $select = 'SELECT DISTINCT u.id FROM '.$CFG->prefix.'user u';
+            $select = 'SELECT DISTINCT u.id FROM {user} u';
             $where = ' WHERE u.id='.$userid.' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($unenrol_attributes_record->customtext1);
             $arraysql    = self::arraysyntax_tosql($arraysyntax);
@@ -276,7 +276,7 @@ class enrol_attributes_plugin extends enrol_plugin {
             $enrol_attributes_instance = new enrol_attributes_plugin();
             $enrol_attributes_instance->name = $enrol_attributes_record->name;
 
-            $select = 'SELECT DISTINCT u.id FROM '.$CFG->prefix.'user u';
+            $select = 'SELECT DISTINCT u.id FROM {user} u';
             if ($event) { // called by an event, i.e. user login
                 $userid = (int)$event->userid;
                 $where = ' WHERE u.id='.$userid;
