@@ -27,16 +27,16 @@ require_once('edit_form.php');
 $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = optional_param('id', 0, PARAM_INT); // instanceid
 
-$course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $context = context_course::instance($course->id);
 
 require_login($course);
 require_capability('enrol/attributes:config', $context);
 
-$PAGE->set_url('/enrol/attributes/edit.php', array('courseid'=>$course->id, 'id'=>$instanceid));
+$PAGE->set_url('/enrol/attributes/edit.php', array('courseid' => $course->id, 'id' => $instanceid));
 $PAGE->set_pagelayout('admin');
 
-$return = new moodle_url('/enrol/instances.php', array('id'=>$course->id));
+$return = new moodle_url('/enrol/instances.php', array('id' => $course->id));
 if (!enrol_is_enabled('attributes')) {
     redirect($return);
 }
@@ -44,23 +44,21 @@ if (!enrol_is_enabled('attributes')) {
 $plugin = enrol_get_plugin('attributes');
 
 if ($instanceid) {
-    $instance = $DB->get_record('enrol', array('courseid'=>$course->id, 'enrol'=>'attributes', 'id'=>$instanceid), '*', MUST_EXIST);
-}
-else {
+    $instance = $DB->get_record('enrol', array('courseid' => $course->id, 'enrol' => 'attributes', 'id' => $instanceid), '*', MUST_EXIST);
+} else {
     require_capability('moodle/course:enrolconfig', $context);
     // no instance yet, we have to add new instance
-    navigation_node::override_active_url(new moodle_url('/enrol/instances.php', array('id'=>$course->id)));
+    navigation_node::override_active_url(new moodle_url('/enrol/instances.php', array('id' => $course->id)));
     $instance           = new stdClass();
     $instance->id       = null;
     $instance->courseid = $course->id;
 }
 
-$mform = new enrol_attributes_edit_form(NULL, array($instance, $plugin, $context));
+$mform = new enrol_attributes_edit_form(null, array($instance, $plugin, $context));
 
 if ($mform->is_cancelled()) {
     redirect($return);
-}
-else if ($data = $mform->get_data()) {
+} else if ($data = $mform->get_data()) {
 
     if ($instance->id) {
         $instance->name           = $data->name;
@@ -68,9 +66,8 @@ else if ($data = $mform->get_data()) {
         $instance->customint1     = isset($data->customint1) ? ($data->customint1) : 0;
         $instance->customtext1    = $data->customtext1;
         $DB->update_record('enrol', $instance);
-    }
-    else {
-        $fields = array('name'=>$data->name, 'roleid'=>$data->roleid, 'customint1'=>isset($data->customint1), 'customtext1'=>$data->customtext1);
+    } else {
+        $fields = array('name' => $data->name, 'roleid' => $data->roleid, 'customint1' => isset($data->customint1), 'customtext1' => $data->customtext1);
         $plugin->add_instance($course, $fields);
     }
 
@@ -102,9 +99,9 @@ if ($instanceid) {
     debugging('sqlquery= ' . print_r($debug_sqlquery, true), DEBUG_DEVELOPER);
     $debug_users = $DB->get_records_sql($debug_sqlquery);
     debugging('countusers= ' . print_r(count($debug_users), true), DEBUG_DEVELOPER);
-//    debugging('force.php DEBUGGING:', DEBUG_DEVELOPER);
-//    $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
-//    debugging('nbenrolled= ' . print_r($nbenrolled, true), DEBUG_DEVELOPER);
+    //    debugging('force.php DEBUGGING:', DEBUG_DEVELOPER);
+    //    $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
+    //    debugging('nbenrolled= ' . print_r($nbenrolled, true), DEBUG_DEVELOPER);
 }
 // DEBUGGING : END
 

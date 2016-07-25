@@ -29,16 +29,15 @@ require_sesskey();
 $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = required_param('instanceid', PARAM_INT);
 
-$course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $context = context_course::instance($course->id);
 
 require_login($course);
 require_capability('enrol/attributes:config', $context);
 
-if(enrol_attributes_plugin::purge_instance($instanceid, $context)) {
+if (enrol_attributes_plugin::purge_instance($instanceid, $context)) {
     print_string('ajax-okpurged', 'enrol_attributes');
-}
-else {
+} else {
     print_string('ajax-error', 'enrol_attributes');
 }
 

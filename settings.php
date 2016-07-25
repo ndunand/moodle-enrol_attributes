@@ -30,13 +30,13 @@ if ($ADMIN->fulltree) {
     $options = get_default_enrol_roles(context_system::instance());
 
     $student = get_archetype_roles('student');
-    $student_role = array_shift($student);
+    $studentrole = array_shift($student);
 
     //    $settings->add(new admin_setting_heading('enrol_myunil_defaults', get_string('enrolinstancedefaults', 'admin'),
     //            ''));
     $settings->add(new admin_setting_configselect('enrol_attributes/default_roleid',
             get_string('defaultrole', 'enrol_attributes'), get_string('defaultrole_desc', 'enrol_attributes'),
-            $student_role->id, $options));
+            $studentrole->id, $options));
 
     // 2. Fields to use in the selector
     $customfieldrecords = $DB->get_records('user_info_field');
