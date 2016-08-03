@@ -100,7 +100,7 @@ if ($instanceid) {
     $debug_sqlquery =
             'SELECT DISTINCT u.id FROM {user} u ' . $debug_arraysql['select'] . ' WHERE ' . $debug_arraysql['where'];
     debugging('sqlquery= ' . print_r($debug_sqlquery, true), DEBUG_DEVELOPER);
-    $debug_users = $DB->get_records_sql($debug_sqlquery);
+    $debug_users = $DB->get_records_sql($debug_sqlquery, $debug_arraysql['params']);
     debugging('countusers= ' . print_r(count($debug_users), true), DEBUG_DEVELOPER);
 //    debugging('force.php DEBUGGING:', DEBUG_DEVELOPER);
 //    $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
