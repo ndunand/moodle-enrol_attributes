@@ -126,7 +126,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         $select = '';
         $where = '1=1';
         static $join_id = 0;
-
+        $params = array();
         $customuserfields = $arraysyntax['customuserfields'];
 
         foreach ($arraysyntax['rules'] as $rule) {
@@ -154,13 +154,19 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $sub_sql = self::arraysyntax_tosql($sub_arraysyntax);
                 $select .= ' '.$sub_sql['select'].' ';
                 $where .= ' ( '.$sub_sql['where'].' ) ';
+                $params = array_merge($params,$sub_sql['params']);
             }
             else {
                 if ($customkey = array_search($rule->param, $customuserfields, true)) {
                     // custom user field actually exists
                     $join_id++;
-                    $select .= ' RIGHT JOIN '.$CFG->prefix.'user_info_data d'.$join_id.' ON d'.$join_id.'.userid = u.id';
-                    $where .= ' (d'.$join_id.'.fieldid = '.$customkey.' AND ( d'.$join_id.'.data = \''.$rule->value.'\' OR d'.$join_id.'.data LIKE \'%;'.$rule->value.'\' OR d'.$join_id.'.data LIKE \''.$rule->value.';%\' OR d'.$join_id.'.data LIKE \'%;'.$rule->value.';%\' ))';
+                    global $DB;
+                    $data = 'd'.$join_id.'.data';
+                    $select .= ' RIGHT JOIN {user_info_data} d'.$join_id.' ON d'.$join_id.'.userid = u.id';
+                    $where .= ' (d'.$join_id.'.fieldid = ? AND ('.$DB->sql_compare_text($data).' = '.$DB->sql_compare_text('?').
+                            ' OR '.$DB->sql_like($DB->sql_compare_text($data),'?').' OR '
+                            .$DB->sql_like($DB->sql_compare_text($data),'?').' OR '.$DB->sql_like($DB->sql_compare_text($data),'?').'))';
+                    array_push($params, $customkey,$rule->value,'%;'.$rule->value,$rule->value.';%','%;'.$rule->value.';%');
                 }
             }
         }
@@ -171,7 +177,8 @@ class enrol_attributes_plugin extends enrol_plugin {
 
         return array(
             'select' => $select,
-            'where' => $where
+            'where' => $where,
+            'params' => $params
         );
     }
 
@@ -251,7 +258,7 @@ class enrol_attributes_plugin extends enrol_plugin {
             $where = ' WHERE u.id='.$userid.' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($unenrol_attributes_record->customtext1);
             $arraysql    = self::arraysyntax_tosql($arraysyntax);
-            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where']);
+            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],$arraysql['params']);
 
             if (!array_key_exists($userid, $users)) {
                 $enrol_attributes_instance = new enrol_attributes_plugin();
@@ -287,8 +294,8 @@ class enrol_attributes_plugin extends enrol_plugin {
             $where .= ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($enrol_attributes_record->customtext1);
             $arraysql    = self::arraysyntax_tosql($arraysyntax);
-
-            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where']);
+            
+            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],$arraysql['params']);            
             foreach ($users as $user) {
                 if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
                     continue;
