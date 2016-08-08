@@ -124,7 +124,7 @@ class enrol_attributes_plugin extends enrol_plugin {
     public static function arraysyntax_tosql($arraysyntax) { // TODO : protected
         global $CFG;
         $select = '';
-        $where = 'true';
+        $where = '1=1';
         static $join_id = 0;
 
         $customuserfields = $arraysyntax['customuserfields'];
@@ -134,7 +134,7 @@ class enrol_attributes_plugin extends enrol_plugin {
             if (isset($rule->value) && $rule->value == 'ANY') {
                 return array(
                     'select' => '',
-                    'where'  => 'true'
+                    'where'  => '1=1'
                 );
             }
         }
@@ -165,9 +165,9 @@ class enrol_attributes_plugin extends enrol_plugin {
             }
         }
 
-        $where = preg_replace('/^true AND/', '', $where);
-        $where = preg_replace('/^true OR/', '', $where);
-        $where = preg_replace('/^true/', '', $where);
+        $where = preg_replace('/^1=1 AND/', '', $where);
+        $where = preg_replace('/^1=1 OR/', '', $where);
+        $where = preg_replace('/^1=1/', '', $where);
 
         return array(
             'select' => $select,
@@ -282,7 +282,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $where = ' WHERE u.id='.$userid;
             }
             else { // called by cron or by construct
-                $where = ' WHERE true';
+                $where = ' WHERE 1=1';
             }
             $where .= ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($enrol_attributes_record->customtext1);
