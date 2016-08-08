@@ -21,11 +21,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once('lib.php');
 
 header('Content-type: application/javascript');
-
 
 $customfieldrecords = $DB->get_records('user_info_field');
 $customfields = array();
@@ -39,7 +38,10 @@ $profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
 
 foreach ($profilefields as $profilefield) {
     if (array_key_exists($profilefield, $customfields)) {
-        $items[] = array('value' => $profilefield, 'label' => $customfields[$profilefield]);
+        $items[] = array(
+                'value' => $profilefield,
+                'label' => $customfields[$profilefield]
+        );
     }
 }
 

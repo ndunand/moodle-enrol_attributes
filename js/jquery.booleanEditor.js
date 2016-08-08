@@ -210,16 +210,16 @@
                     selected_value: config.param
                 }).addClass("comp-param"))
                 .append($('<span>').addClass("comp-op").text('='))
-//                .append( makeSelectList({                                    // The comparison operator
-//                    name: 'comparison-operator',
-//                    params: $.booleanEditor.operatorList,
-//                    selected_value: config.comp_op
-//                }).addClass("comp-op"))
+                //                .append( makeSelectList({                                    // The comparison operator
+                //                    name: 'comparison-operator',
+                //                    params: $.booleanEditor.operatorList,
+                //                    selected_value: config.comp_op
+                //                }).addClass("comp-op"))
                 .append($('<input type="text" name="value" value="' + config.value + '"/>')
                     .change(function () {
                         changed(this)
                     })
-            );    // The value of the comparions
+                );    // The value of the comparions
         }
 
         var ruleConditionElement = $('<li></li>')
@@ -252,17 +252,17 @@
                 .click(function () {
                     addNewConditionAfter($(this).parents('li').get(0));
                 })
-        )
+            )
             .append($('<button type="button" class="button-add-group">add group</button>')
                 .click(function () {
                     addNewGroupAfter($(this).parents('li').get(0));
                 })
-        )
+            )
             .append($('<button type="button" class="button-del-cond">delete</button>')
                 .click(function () {
                     deleteCondition($(this).parents('li').eq(0));
                 })
-        );
+            );
         $('button', buttonPannel).each(function () {
             $(this)
                 .focus(function () {

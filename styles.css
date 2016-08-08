@@ -1,53 +1,163 @@
-
-
 /* Css for Shibboleth Rules Editor */
 
-.boolean-editor { width: 600px; }
+.boolean-editor {
+    width: 600px;
+}
 
-.boolean-editor ul { list-style: none; padding-left: 10px; }
+.boolean-editor ul {
+    list-style: none;
+    padding-left: 10px;
+}
 
-.boolean-editor li { position: relative; margin-bottom: 45px; white-space: nowrap; }
-.boolean-editor li.rule { background-color: #EEE; }
+.boolean-editor li {
+    position: relative;
+    margin-bottom: 45px;
+    white-space: nowrap;
+}
 
+.boolean-editor li.rule {
+    background-color: #EEE;
+}
 
-.boolean-editor li .sre-condition-rule-operator { left: 0px; top: -33px; position: absolute; }
+.boolean-editor li .sre-condition-rule-operator {
+    left: 0px;
+    top: -33px;
+    position: absolute;
+}
 
-.boolean-editor li .sre-condition-box { padding: 10px; border: solid 1px #666; overflow: hidden; }
-.boolean-editor li:hover > .sre-condition-box { border-width: 2px; padding: 9px; }
-.boolean-editor li.group > .sre-condition-box { border-style: dashed; }
+.boolean-editor li .sre-condition-box {
+    padding: 10px;
+    border: solid 1px #666;
+    overflow: hidden;
+}
+
+.boolean-editor li:hover > .sre-condition-box {
+    border-width: 2px;
+    padding: 9px;
+}
+
+.boolean-editor li.group > .sre-condition-box {
+    border-style: dashed;
+}
 
 /*
 .boolean-editor li .button-pannel { position: absolute; right: 5px; bottom: -15px; padding: 2px; line-height: 0; border: 1px dotted #666; background: #E2E2E2; z-index: 100; }
 .boolean-editor li:hover > .button-pannel { border-style: solid; }
 */
 
-.boolean-editor li .button-pannel { position: absolute; right: 5px; bottom: -12px; padding: 1px 5px; height: 10px; line-height: 0; border: 1px solid #666; border-width: 0 1px 1px; background: #EEE; }
-.boolean-editor li.group > .button-pannel { border-style: dashed; background-color: #fff; }
-.boolean-editor li:hover > .button-pannel { border-width: 0 2px 2px; padding: 1px 4px; }
-.boolean-editor .button-pannel button { float: left; margin-top: -10px; }
-.boolean-editor li:hover > .button-pannel button { margin-top: -9px; }
+.boolean-editor li .button-pannel {
+    position: absolute;
+    right: 5px;
+    bottom: -12px;
+    padding: 1px 5px;
+    height: 10px;
+    line-height: 0;
+    border: 1px solid #666;
+    border-width: 0 1px 1px;
+    background: #EEE;
+}
 
+.boolean-editor li.group > .button-pannel {
+    border-style: dashed;
+    background-color: #fff;
+}
 
-.boolean-editor .button-pannel button { border: 1px solid #999; background: #CCC url() 0px 0px no-repeat; margin-right: 3px; width: 18px; height: 18px; cursor: pointer; }
-.boolean-editor .button-pannel button:hover { border-color: #BBB #999 #666; }
-.boolean-editor .button-pannel button:active { border-color: #C00; }
-.boolean-editor .button-pannel button:last-child { margin-right: 0px; }
-.boolean-editor .button-pannel button span { display: none; }
-.boolean-editor .button-pannel .button-add-cond  { background-image: url([[pix:enrol_attributes|add]]); }
-.boolean-editor .button-pannel .button-add-group { background-image: url([[pix:enrol_attributes|group_add]]); }
-.boolean-editor .button-pannel .button-del-cond  { background-image: url([[pix:enrol_attributes|delete]]); }
+.boolean-editor li:hover > .button-pannel {
+    border-width: 0 2px 2px;
+    padding: 1px 4px;
+}
 
-#shib-expression .expr { margin-left: 10px; font-family:monospace; font-size: 9pt; line-height: 14pt; width:600px; background-color:#EEEEEE; }
-#shib-expression .expr span { margin-right: 2px; }
-#shib-expression .expr .cond-op { color: #C00; }
-#shib-expression .expr .group-op { color: #666; font-size: 11pt; }
-#shib-expression .expr .group-group { font-size: 14pt; color: #666; }
-#shib-expression .expr .comp-param { color: blue; }
-#shib-expression .expr .comp-op { color: #0A0; }
-#shib-expression .expr .comp-val { color: purple; }
+.boolean-editor .button-pannel button {
+    float: left;
+    margin-top: -10px;
+}
 
+.boolean-editor li:hover > .button-pannel button {
+    margin-top: -9px;
+}
 
+.boolean-editor .button-pannel button {
+    border: 1px solid #999;
+    background: #CCC url() 0px 0px no-repeat;
+    margin-right: 3px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
 
-.boolean-editor .button-pannel button { -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; }
+.boolean-editor .button-pannel button:hover {
+    border-color: #BBB #999 #666;
+}
 
-span.comp-op { padding: 0 10px; }
+.boolean-editor .button-pannel button:active {
+    border-color: #C00;
+}
+
+.boolean-editor .button-pannel button:last-child {
+    margin-right: 0px;
+}
+
+.boolean-editor .button-pannel button span {
+    display: none;
+}
+
+.boolean-editor .button-pannel .button-add-cond {
+    background-image: url([[pix:enrol_attributes|add]]);
+}
+
+.boolean-editor .button-pannel .button-add-group {
+    background-image: url([[pix:enrol_attributes|group_add]]);
+}
+
+.boolean-editor .button-pannel .button-del-cond {
+    background-image: url([[pix:enrol_attributes|delete]]);
+}
+
+#shib-expression .expr {
+    margin-left: 10px;
+    font-family: monospace;
+    font-size: 9pt;
+    line-height: 14pt;
+    width: 600px;
+    background-color: #EEEEEE;
+}
+
+#shib-expression .expr span {
+    margin-right: 2px;
+}
+
+#shib-expression .expr .cond-op {
+    color: #C00;
+}
+
+#shib-expression .expr .group-op {
+    color: #666;
+    font-size: 11pt;
+}
+
+#shib-expression .expr .group-group {
+    font-size: 14pt;
+    color: #666;
+}
+
+#shib-expression .expr .comp-param {
+    color: blue;
+}
+
+#shib-expression .expr .comp-op {
+    color: #0A0;
+}
+
+#shib-expression .expr .comp-val {
+    color: purple;
+}
+
+.boolean-editor .button-pannel button {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+}
+
+span.comp-op {
+    padding: 0 10px;
+}

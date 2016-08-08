@@ -23,7 +23,8 @@
 
 $string['pluginname'] = 'Inscription par champs du profil utilisateur';
 $string['defaultrole'] = 'Rôle par défaut';
-$string['defaultrole_desc'] = 'Rôle à attribuer par défaut avec ce plugin (chaque instance peut avoir un réglage différent).';
+$string['defaultrole_desc'] =
+        'Rôle à attribuer par défaut avec ce plugin (chaque instance peut avoir un réglage différent).';
 $string['attrsyntax'] = 'Règles sur les champs du profil utilisateur';
 $string['attrsyntax_help'] = '<p>Ces règles ne peuvent utiliser que des champs du profil ajoutés.</p>';
 $string['attributes:config'] = 'Configurer des instances du plugin';
@@ -38,9 +39,12 @@ $string['force'] = 'Forcer les inscriptions maintenant';
 $string['confirmforce'] = 'Ceci (ré)inscrira tous les utilisateurs correspondant à cette règle.';
 $string['confirmpurge'] = 'Ceci supprimera toutes les inscriptions correspondant à cette règle.';
 $string['mappings'] = 'Lien depuis les attributs Shibboleth';
-$string['mappings_desc'] = 'Si vous utilisez la méthode d\'authentification Shibboleth, ce plugin permet de mettre à jour les champs du profil utilisateur automatiquement à chaque connexion.<br><br>Par exemple, si vous désirez mettre à jour le champ <code>homeorganizationtype</code> du profil utilisateur avec la valeur de l\'attribut Shibboleth <code>Shib-HomeOrganizationType</code> (pour autant que celui-ci soit disponible en tant que variable d\'environnement du serveur lors de la connexion), vous pouvez entrer sur une ligne : <code>Shib-HomeOrganizationType:homeorganizationtype</code><br>Vous pouvez entrer autant de lignes que nécessaire.<br><br>Si vous ne désirez pas utiliser cette fonctionnalité, ou si vous n\'utilisez pas l\'authentification par Shibboleth, laissez simplement ce champ vide.';
+$string['mappings_desc'] =
+        'Si vous utilisez la méthode d\'authentification Shibboleth, ce plugin permet de mettre à jour les champs du profil utilisateur automatiquement à chaque connexion.<br><br>Par exemple, si vous désirez mettre à jour le champ <code>homeorganizationtype</code> du profil utilisateur avec la valeur de l\'attribut Shibboleth <code>Shib-HomeOrganizationType</code> (pour autant que celui-ci soit disponible en tant que variable d\'environnement du serveur lors de la connexion), vous pouvez entrer sur une ligne : <code>Shib-HomeOrganizationType:homeorganizationtype</code><br>Vous pouvez entrer autant de lignes que nécessaire.<br><br>Si vous ne désirez pas utiliser cette fonctionnalité, ou si vous n\'utilisez pas l\'authentification par Shibboleth, laissez simplement ce champ vide.';
 $string['profilefields'] = 'Champs du profil utilisables';
-$string['profilefields_desc'] = 'Quels champs du profil utilisateur sont à montrer lors de la configuration d\'une instance d\'inscription ?<br><br><b>Si vous ne sélectionnez aucun role, cela rend l\'utilisation de ce plugin caduque, et désactive donc son utilisation dans les cours.</b><br>Le fonctionnalité ci-dessous peut toutefois toujours être utilisée dans ce cas.';
+$string['profilefields_desc'] =
+        'Quels champs du profil utilisateur sont à montrer lors de la configuration d\'une instance d\'inscription ?<br><br><b>Si vous ne sélectionnez aucun role, cela rend l\'utilisation de ce plugin caduque, et désactive donc son utilisation dans les cours.</b><br>Le fonctionnalité ci-dessous peut toutefois toujours être utilisée dans ce cas.';
 $string['removewhenexpired'] = 'Désinscrire après expiration des attributs';
-$string['removewhenexpired_help'] = 'Désinscrire les utilisateurs à la connexion si leurs attributs ne correspondent plus à la règle.';
+$string['removewhenexpired_help'] =
+        'Désinscrire les utilisateurs à la connexion si leurs attributs ne correspondent plus à la règle.';
 

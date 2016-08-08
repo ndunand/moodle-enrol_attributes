@@ -23,13 +23,13 @@
 
 $observers = array(
 
-    array(
-        'eventname'   => '\core\event\user_loggedin',
-        'callback'    => 'enrol_attributes_plugin::process_login',
-        'includefile' => '/enrol/attributes/lib.php',
-        'internal'    => true,
-        'priority'    => 9999,
-    ),
+        array(
+                'eventname'   => '\core\event\user_loggedin',
+                'callback'    => 'enrol_attributes_plugin::process_login',
+                'includefile' => '/enrol/attributes/lib.php',
+                'internal'    => true,
+                'priority'    => 9999,
+        ),
 
 );
 
