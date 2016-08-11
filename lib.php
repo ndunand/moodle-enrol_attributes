@@ -151,7 +151,8 @@ class enrol_attributes_plugin extends enrol_plugin {
             if (isset($rule->value) && $rule->value == 'ANY') {
                 return array(
                         'select' => '',
-                        'where'  => '1=1'
+                        'where'  => '1=1',
+                        'params' => $params
                 );
             }
         }
