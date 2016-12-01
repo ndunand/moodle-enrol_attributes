@@ -28,7 +28,7 @@ var enrol_attributes_purge = enrol_attributes_force = function () {
 
     $(document).ready(function () {
 
-        var $shib_rules = $('<div>').attr('id', 'shib-rules'),
+        var $shib_rules = $('<div>').attr('id', 'enrol-attributes-shib-rules'),
             $textarea = $("#id_customtext1");
 
         try {

@@ -1,51 +1,51 @@
 /* Css for Shibboleth Rules Editor */
 
-.boolean-editor {
+.enrol-attributes-boolean-editor {
     width: 600px;
 }
 
-.boolean-editor ul {
+.enrol-attributes-boolean-editor ul {
     list-style: none;
     padding-left: 10px;
 }
 
-.boolean-editor li {
+.enrol-attributes-boolean-editor li {
     position: relative;
     margin-bottom: 45px;
     white-space: nowrap;
 }
 
-.boolean-editor li.rule {
+.enrol-attributes-boolean-editor li.rule {
     background-color: #EEE;
 }
 
-.boolean-editor li .sre-condition-rule-operator {
+.enrol-attributes-boolean-editor li .sre-condition-rule-operator {
     left: 0px;
     top: -33px;
     position: absolute;
 }
 
-.boolean-editor li .sre-condition-box {
+.enrol-attributes-boolean-editor li .sre-condition-box {
     padding: 10px;
     border: solid 1px #666;
     overflow: hidden;
 }
 
-.boolean-editor li:hover > .sre-condition-box {
+.enrol-attributes-boolean-editor li:hover > .sre-condition-box {
     border-width: 2px;
     padding: 9px;
 }
 
-.boolean-editor li.group > .sre-condition-box {
+.enrol-attributes-boolean-editor li.group > .sre-condition-box {
     border-style: dashed;
 }
 
 /*
-.boolean-editor li .button-pannel { position: absolute; right: 5px; bottom: -15px; padding: 2px; line-height: 0; border: 1px dotted #666; background: #E2E2E2; z-index: 100; }
-.boolean-editor li:hover > .button-pannel { border-style: solid; }
+.enrol-attributes-boolean-editor li .button-pannel { position: absolute; right: 5px; bottom: -15px; padding: 2px; line-height: 0; border: 1px dotted #666; background: #E2E2E2; z-index: 100; }
+.enrol-attributes-boolean-editor li:hover > .button-pannel { border-style: solid; }
 */
 
-.boolean-editor li .button-pannel {
+.enrol-attributes-boolean-editor li .button-pannel {
     position: absolute;
     right: 5px;
     bottom: -12px;
@@ -57,26 +57,26 @@
     background: #EEE;
 }
 
-.boolean-editor li.group > .button-pannel {
+.enrol-attributes-boolean-editor li.group > .button-pannel {
     border-style: dashed;
     background-color: #fff;
 }
 
-.boolean-editor li:hover > .button-pannel {
+.enrol-attributes-boolean-editor li:hover > .button-pannel {
     border-width: 0 2px 2px;
     padding: 1px 4px;
 }
 
-.boolean-editor .button-pannel button {
+.enrol-attributes-boolean-editor .button-pannel button {
     float: left;
     margin-top: -10px;
 }
 
-.boolean-editor li:hover > .button-pannel button {
+.enrol-attributes-boolean-editor li:hover > .button-pannel button {
     margin-top: -9px;
 }
 
-.boolean-editor .button-pannel button {
+.enrol-attributes-boolean-editor .button-pannel button {
     border: 1px solid #999;
     background: #CCC url() 0px 0px no-repeat;
     margin-right: 3px;
@@ -85,31 +85,31 @@
     cursor: pointer;
 }
 
-.boolean-editor .button-pannel button:hover {
+.enrol-attributes-boolean-editor .button-pannel button:hover {
     border-color: #BBB #999 #666;
 }
 
-.boolean-editor .button-pannel button:active {
+.enrol-attributes-boolean-editor .button-pannel button:active {
     border-color: #C00;
 }
 
-.boolean-editor .button-pannel button:last-child {
+.enrol-attributes-boolean-editor .button-pannel button:last-child {
     margin-right: 0px;
 }
 
-.boolean-editor .button-pannel button span {
+.enrol-attributes-boolean-editor .button-pannel button span {
     display: none;
 }
 
-.boolean-editor .button-pannel .button-add-cond {
+.enrol-attributes-boolean-editor .button-pannel .button-add-cond {
     background-image: url([[pix:enrol_attributes|add]]);
 }
 
-.boolean-editor .button-pannel .button-add-group {
+.enrol-attributes-boolean-editor .button-pannel .button-add-group {
     background-image: url([[pix:enrol_attributes|group_add]]);
 }
 
-.boolean-editor .button-pannel .button-del-cond {
+.enrol-attributes-boolean-editor .button-pannel .button-del-cond {
     background-image: url([[pix:enrol_attributes|delete]]);
 }
 
@@ -152,7 +152,7 @@
     color: purple;
 }
 
-.boolean-editor .button-pannel button {
+.enrol-attributes-boolean-editor .button-pannel button {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     border-radius: 4px;
@@ -161,3 +161,4 @@
 span.comp-op {
     padding: 0 10px;
 }
+

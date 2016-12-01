@@ -72,7 +72,7 @@
                     $(this).data('change', settings.change)
                 }
                 $(this)
-                    .addClass("boolean-editor")
+                    .addClass("enrol-attributes-boolean-editor")
                     .append(createRuleList($('<ul></ul>'), settings.rules));
                 changed(this);
             });
@@ -135,8 +135,8 @@
 
     function changed(o) {
         $o = $(o);
-        if (!$o.hasClass('boolean-editor')) {
-            $o = $o.parents('.boolean-editor').eq(0);
+        if (!$o.hasClass('enrol-attributes-boolean-editor')) {
+            $o = $o.parents('.enrol-attributes-boolean-editor').eq(0);
         }
         if ($o.data('change')) {
             $o.data('change').apply($o.get(0));
@@ -334,7 +334,7 @@
      *
      */
     function deleteCondition(elem) {
-        if (elem.parent().parent().hasClass('boolean-editor')) {
+        if (elem.parent().parent().hasClass('enrol-attributes-boolean-editor')) {
             // Level 1
             if (elem.siblings().length == 0) {
                 return;
@@ -350,7 +350,7 @@
         p = elem.parent();
         elem.fadeOut("normal", function () {
             $(this).remove();
-            $("li:first .sre-condition-rule-operator", ".boolean-editor ul").remove();
+            $("li:first .sre-condition-rule-operator", ".enrol-attributes-boolean-editor ul").remove();
             changed(p);
         });
     }
