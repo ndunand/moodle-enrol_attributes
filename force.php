@@ -47,9 +47,9 @@ $nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
 ob_end_clean();
 
 if ($nbenrolled !== false) {
-    print_string('ajax-okforced', 'enrol_attributes', $nbenrolled);
+    echo json_encode(get_string('ajax-okforced', 'enrol_attributes', $nbenrolled));
 }
 else {
-    print_string('ajax-error', 'enrol_attributes');
+    echo json_encode(get_string('ajax-error', 'enrol_attributes'));
 }
 

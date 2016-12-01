@@ -38,9 +38,9 @@ require_login($course);
 require_capability('enrol/attributes:config', $context);
 
 if (enrol_attributes_plugin::purge_instance($instanceid, $context)) {
-    print_string('ajax-okpurged', 'enrol_attributes');
+    echo json_encode(get_string('ajax-okpurged', 'enrol_attributes'));
 }
 else {
-    print_string('ajax-error', 'enrol_attributes');
+    echo json_encode(get_string('ajax-error', 'enrol_attributes'));
 }
 
