@@ -47,4 +47,7 @@ $string['profilefields_desc'] =
 $string['removewhenexpired'] = 'Désinscrire après expiration des attributs';
 $string['removewhenexpired_help'] =
         'Désinscrire les utilisateurs à la connexion si leurs attributs ne correspondent plus à la règle.';
+$string['addcondition'] = "Ajouter une condition";
+$string['addgroup'] = "Ajouter un groupe";
+$string['deletecondition'] = "Supprimer la condition";
 

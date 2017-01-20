@@ -248,17 +248,17 @@
 
     function createButtonPannel() {
         var buttonPannel = $('<div class="button-pannel"></div>')
-            .append($('<button type="button" class="button-add-cond">add condition</button>')
+            .append($('<button type="button" class="button-add-cond">'+ M.util.get_string('addcondition', 'enrol_attributes') +'</button>')
                 .click(function () {
                     addNewConditionAfter($(this).parents('li').get(0));
                 })
             )
-            .append($('<button type="button" class="button-add-group">add group</button>')
+            .append($('<button type="button" class="button-add-group">'+ M.util.get_string('addgroup', 'enrol_attributes') +'</button>')
                 .click(function () {
                     addNewGroupAfter($(this).parents('li').get(0));
                 })
             )
-            .append($('<button type="button" class="button-del-cond">delete</button>')
+            .append($('<button type="button" class="button-del-cond">'+ M.util.get_string('deletecondition', 'enrol_attributes') +'</button>')
                 .click(function () {
                     deleteCondition($(this).parents('li').eq(0));
                 })

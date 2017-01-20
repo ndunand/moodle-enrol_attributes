@@ -100,6 +100,7 @@ $PAGE->requires->jquery();
 $PAGE->requires->js('/enrol/attributes/js/jquery.json-2.3.min.js');
 $PAGE->requires->js('/enrol/attributes/jsparams.php');
 $PAGE->requires->js('/enrol/attributes/js/jquery.booleanEditor.js');
+$PAGE->requires->strings_for_js(array('addcondition', 'addgroup', 'deletecondition'), 'enrol_attributes');
 $PAGE->requires->js('/enrol/attributes/js/javascript.js');
 
 echo $OUTPUT->header();

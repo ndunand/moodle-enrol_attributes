@@ -45,4 +45,7 @@ $string['profilefields_desc'] =
         'Which user profile fields can be used when configuring an enrolment instance?<br><br><b>If you don\'t select any role here, this makes the plugin moot and hence disables its use in courses.</b><br>The feature below may however still be used in this case.';
 $string['removewhenexpired'] = 'Unenrol after attributes expiration';
 $string['removewhenexpired_help'] = 'Unenrol users upon login if they don\'t match the attribute rule anymore.';
+$string['addcondition'] = "Add condition";
+$string['addgroup'] = "Add group";
+$string['deletecondition'] = "Delete condition";
 
