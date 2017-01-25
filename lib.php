@@ -138,8 +138,8 @@ class enrol_attributes_plugin extends enrol_plugin {
         );
     }
 
-    public static function arraysyntax_tosql($arraysyntax) { // TODO : protected
-        global $CFG;
+    public static function arraysyntax_tosql($arraysyntax) {
+        global $DB;
         $select = '';
         $where = '1=1';
         static $join_id = 0;
@@ -147,22 +147,16 @@ class enrol_attributes_plugin extends enrol_plugin {
         $customuserfields = $arraysyntax['customuserfields'];
 
         foreach ($arraysyntax['rules'] as $rule) {
-            // first just check if we have a value 'ANY' to enroll all people :
-            if (isset($rule->value) && $rule->value == 'ANY') {
-                return array(
-                        'select' => '',
-                        'where'  => '1=1',
-                        'params' => $params
-                );
-            }
-        }
-
-        foreach ($arraysyntax['rules'] as $rule) {
             if (isset($rule->cond_op)) {
                 $where .= ' ' . strtoupper($rule->cond_op) . ' ';
             }
             else {
                 $where .= ' AND ';
+            }
+            // first just check if we have a value 'ANY' to enroll all people :
+            if (isset($rule->value) && $rule->value == 'ANY') {
+                $where .= '1=1';
+                continue;
             }
             if (isset($rule->rules)) {
                 $sub_arraysyntax = array(
@@ -178,13 +172,12 @@ class enrol_attributes_plugin extends enrol_plugin {
                 if ($customkey = array_search($rule->param, $customuserfields, true)) {
                     // custom user field actually exists
                     $join_id++;
-                    global $DB;
                     $data = 'd' . $join_id . '.data';
-                    $select .= ' RIGHT JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id';
-                    $where .= ' (d' . $join_id . '.fieldid = ? AND (' . $DB->sql_compare_text($data) . ' = ' . $DB->sql_compare_text('?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
+                    $select .= ' RIGHT JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id AND d' . $join_id . '.fieldid = ' . $customkey;
+                    $where .= ' (' . $DB->sql_compare_text($data) . ' = ' . $DB->sql_compare_text('?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
                                     '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
-                                    '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data), '?') . '))';
-                    array_push($params, $customkey, $rule->value, '%;' . $rule->value, $rule->value . ';%',
+                                    '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
+                    array_push($params, $rule->value, '%;' . $rule->value, $rule->value . ';%',
                             '%;' . $rule->value . ';%');
                 }
             }
