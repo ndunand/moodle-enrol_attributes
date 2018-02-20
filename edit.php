@@ -97,7 +97,6 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('pluginname', 'enrol_attributes'));
 
 $PAGE->requires->jquery();
-$PAGE->requires->js('/enrol/attributes/js/jquery.json-2.3.min.js');
 $PAGE->requires->js('/enrol/attributes/jsparams.php');
 $PAGE->requires->js('/enrol/attributes/js/jquery.booleanEditor.js');
 $PAGE->requires->strings_for_js(array('addcondition', 'addgroup', 'deletecondition'), 'enrol_attributes');
