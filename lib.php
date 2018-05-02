@@ -300,14 +300,21 @@ class enrol_attributes_plugin extends enrol_plugin {
         // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {
 
-            $rules = json_decode($enrol_attributes_record->customtext1)->rules;
+            $enroldetails = json_decode($enrol_attributes_record->customtext1);
+            if (isset($enroldetails->rules)) {
+                $rules = $enroldetails->rules;
+            }
+            else {
+                // skip this record, as it is malformed
+                continue;
+            }
             $configured_profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
             foreach ($rules as $rule) {
                 if (!isset($rule->param)) {
-                    break;
+                    continue 2;
                 }
                 if (!in_array($rule->param, $configured_profilefields)) {
-                    break 2;
+                    continue 2;
                 }
             }
             $enrol_attributes_instance = new enrol_attributes_plugin();
