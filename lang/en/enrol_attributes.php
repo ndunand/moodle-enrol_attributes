@@ -48,4 +48,5 @@ $string['removewhenexpired_help'] = 'Unenrol users upon login if they don\'t mat
 $string['addcondition'] = "Add condition";
 $string['addgroup'] = "Add group";
 $string['deletecondition'] = "Delete condition";
+$string['privacy:metadata'] = 'The Enrol by user profile fields enrolment plugin does not store any personal data.';
 
