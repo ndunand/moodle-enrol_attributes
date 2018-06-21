@@ -335,8 +335,12 @@ class enrol_attributes_plugin extends enrol_plugin {
             $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
                     $arraysql['params']);
             foreach ($users as $user) {
+                $recovergrades = null;
+                if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
+                    $recovergrades = false; // do not try to recover grades if user is already enrolled
+                }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
-                        $enrol_attributes_record->roleid);
+                        $enrol_attributes_record->roleid, 0, 0, null, $recovergrades);
                 $nbenrolled++;
             }
         }
