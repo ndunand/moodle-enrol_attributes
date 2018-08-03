@@ -50,7 +50,7 @@
 
                     switch (mode) {
                         case 'json':
-                            return $.toJSON(ser_obj);
+                            return JSON.stringify(ser_obj);
                             break;
 
                         case 'object':
