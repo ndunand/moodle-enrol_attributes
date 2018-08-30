@@ -49,4 +49,11 @@ $string['addcondition'] = "Add condition";
 $string['addgroup'] = "Add group";
 $string['deletecondition'] = "Delete condition";
 $string['privacy:metadata'] = 'The Enrol by user profile fields enrolment plugin does not store any personal data.';
+$string['defaultwhenexpired'] = 'Default behaviour after attributes expiration';
+$string['defaultwhenexpired_desc'] = 'What to do with users that don\'t match the attribute rule anymore. This setting can be overridden in each enrollment instance.';
+$string['whenexpired'] = 'Behaviour after attributes expiration';
+$string['whenexpired_help'] = 'What to do with users that don\'t match the attribute rule anymore.';
+$string['whenexpireddonothing'] = 'Leave user enrolled';
+$string['whenexpiredremove'] = 'Unenroll user';
+$string['whenexpiredsuspend'] = 'Suspend user';
 

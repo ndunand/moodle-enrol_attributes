@@ -22,6 +22,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+require_once $CFG->dirroot . '/enrol/attributes/locallib.php';
 
 /**
  * Database enrolment plugin implementation.
@@ -266,21 +267,24 @@ class enrol_attributes_plugin extends enrol_plugin {
                 // Let's check if there are any potential unenroling instances
                 $userid = (int)$event->userid;
                 $possible_unenrolments =
-                        $DB->get_records_sql("SELECT id, enrolid FROM {user_enrolments} WHERE userid = ? AND status = 0 AND enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 = 1 ) ",
+                        $DB->get_records_sql("SELECT id, enrolid FROM {user_enrolments} WHERE userid = ? AND enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 > 0 ) ",
                                 array($userid));
             }
         }
 
-        // are we to unenrol from anywhere?
+        // are we to unenrol/suspend from anywhere?
         foreach ($possible_unenrolments as $id => $user_enrolment) {
 
             $unenrol_attributes_record = $DB->get_record('enrol', array(
                     'enrol'      => 'attributes',
                     'status'     => 0,
-                    'customint1' => 1,
                     'id'         => $user_enrolment->enrolid
             ));
             if (!$unenrol_attributes_record) {
+                continue;
+            }
+
+            if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING) {
                 continue;
             }
 
@@ -292,8 +296,14 @@ class enrol_attributes_plugin extends enrol_plugin {
                     $arraysql['params']);
 
             if (!array_key_exists($userid, $users)) {
+                // User is to be either unenrolled or suspended
                 $enrol_attributes_instance = new enrol_attributes_plugin();
-                $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$userid);
+                if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDREMOVE) {
+                    $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$userid);
+                }
+                else if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND) {
+                    $enrol_attributes_instance->update_user_enrol($unenrol_attributes_record, (int)$userid, ENROL_USER_SUSPENDED);
+                }
             }
         }
 
@@ -340,7 +350,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                     $recovergrades = false; // do not try to recover grades if user is already enrolled
                 }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
-                        $enrol_attributes_record->roleid, 0, 0, null, $recovergrades);
+                        $enrol_attributes_record->roleid, 0, 0, ENROL_USER_ACTIVE, $recovergrades);
                 $nbenrolled++;
             }
         }

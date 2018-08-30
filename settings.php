@@ -23,22 +23,31 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once $CFG->dirroot . '/enrol/attributes/locallib.php';
+
 if ($ADMIN->fulltree) {
 
-    // 1. Default role
-
+    // Default role
     $options = get_default_enrol_roles(context_system::instance());
 
     $student = get_archetype_roles('student');
     $student_role = array_shift($student);
 
-    //    $settings->add(new admin_setting_heading('enrol_myunil_defaults', get_string('enrolinstancedefaults', 'admin'),
-    //            ''));
     $settings->add(new admin_setting_configselect('enrol_attributes/default_roleid',
             get_string('defaultrole', 'enrol_attributes'), get_string('defaultrole_desc', 'enrol_attributes'),
             $student_role->id, $options));
 
-    // 2. Fields to use in the selector
+    // Behaviour when enrolled user doesn't have required attributes anymore.
+    $whenexpiredoptions = [
+            ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING => get_string('whenexpireddonothing', 'enrol_attributes'),
+            ENROL_ATTRIBUTES_WHENEXPIREDREMOVE => get_string('whenexpiredremove', 'enrol_attributes'),
+            ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND => get_string('whenexpiredsuspend', 'enrol_attributes'),
+    ];
+    $settings->add(new admin_setting_configselect('enrol_attributes/default_whenexpired',
+            get_string('defaultwhenexpired', 'enrol_attributes'), get_string('defaultwhenexpired_desc', 'enrol_attributes'),
+            ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING, $whenexpiredoptions));
+
+    // Fields to use in the selector
     $customfieldrecords = $DB->get_records('user_info_field');
     if ($customfieldrecords) {
         $customfields = [];
@@ -51,7 +60,7 @@ if ($ADMIN->fulltree) {
                 [], $customfields));
     }
 
-    // 3. Fields to update via Shibboleth login
+    // Fields to update via Shibboleth login
     if (in_array('shibboleth', get_enabled_auth_plugins())) {
         $settings->add(new admin_setting_configtextarea('enrol_attributes/mappings',
                 get_string('mappings', 'enrol_attributes'), get_string('mappings_desc', 'enrol_attributes'), '',

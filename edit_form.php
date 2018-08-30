@@ -24,6 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
+require_once $CFG->dirroot . '/enrol/attributes/locallib.php';
 
 class enrol_attributes_edit_form extends moodleform {
 
@@ -52,8 +53,14 @@ class enrol_attributes_edit_form extends moodleform {
         ));
         $mform->addHelpButton('customtext1', 'attrsyntax', 'enrol_attributes');
 
-        $mform->addElement('checkbox', 'customint1', get_string('removewhenexpired', 'enrol_attributes'));
-        $mform->addHelpButton('customint1', 'removewhenexpired', 'enrol_attributes');
+        $whenexpiredoptions = [
+                ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING => get_string('whenexpireddonothing', 'enrol_attributes'),
+                ENROL_ATTRIBUTES_WHENEXPIREDREMOVE => get_string('whenexpiredremove', 'enrol_attributes'),
+                ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND => get_string('whenexpiredsuspend', 'enrol_attributes'),
+        ];
+        $mform->addElement('select', 'customint1', get_string('whenexpired', 'enrol_attributes'), $whenexpiredoptions);
+        $mform->setDefault('customint1', $plugin->get_config('default_whenexpired'));
+        $mform->addHelpButton('customint1', 'whenexpired', 'enrol_attributes');
 
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
