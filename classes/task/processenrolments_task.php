@@ -17,15 +17,30 @@
 /**
  * @package    enrol_attributes
  * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2018 Université de Lausanne (@link http://www.unil.ch}
+ * @copyright  2018 Université de Lausanne (@link http://www.unil.ch}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace enrol_attributes\task;
 
-$plugin->version = 2018080300;
-$plugin->requires = 2014051200; // Moodle 2.7
-$plugin->component = 'enrol_attributes';
-$plugin->release = '2.6 for Moodle 2.7-3.5 (build 2018080300)';
-$plugin->maturity = MATURITY_STABLE;
+class processenrolments_task extends \core\task\scheduled_task {
 
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return 'Process all rules and enrolments for Enrol by user profile fields';
+    }
+
+    /**
+     * Run cron.
+     */
+    public function execute() {
+        global $CFG;
+        require_once ($CFG->dirroot . '/enrol/attributes/lib.php');
+        \enrol_attributes_plugin::process_enrolments();
+    }
+
+}

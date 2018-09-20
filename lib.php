@@ -17,7 +17,7 @@
 /**
  * @package    enrol_attributes
  * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2015 Université de Lausanne (@link http://www.unil.ch}
+ * @copyright  2012-2018 Université de Lausanne (@link http://www.unil.ch}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -195,10 +195,6 @@ class enrol_attributes_plugin extends enrol_plugin {
         );
     }
 
-    public function cron() {
-        $this->process_enrolments();
-    }
-
     public static function process_login(\core\event\user_loggedin $event) {
         global $CFG, $DB;
         // we just received the event from the authentication system; check if well-formed:
@@ -258,7 +254,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         else {
             // We're processing all active instances,
             // because a user just logged in
-            // OR we're running the cron
+            // OR we're running the scheduled task
             $enrol_attributes_records = $DB->get_records('enrol', array(
                     'enrol'  => 'attributes',
                     'status' => 0
@@ -335,7 +331,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $userid = (int)$event->userid;
                 $where = ' WHERE u.id=' . $userid;
             }
-            else { // called by cron or by construct
+            else { // called by scheduled task or by construct
                 $where = ' WHERE 1=1';
             }
             $where .= ' AND u.deleted=0 AND ';
@@ -356,7 +352,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         }
 
         if (!$event && !$instanceid) {
-            // we only want output if runnning within the cron
+            // we only want output if runnning within the scheduled task
             mtrace('enrol_attributes : enrolled ' . $nbenrolled . ' users.');
         }
 
