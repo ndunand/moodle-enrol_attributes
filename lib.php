@@ -320,11 +320,11 @@ class enrol_attributes_plugin extends enrol_plugin {
             }
             $configured_profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
             foreach ($rules as $rule) {
-                if (!isset($rule->param)) {
-                    continue 2;
+                if (!isset($rule->param) && !isset($rule->rules)) {
+                    continue 2; // Rule malformed.
                 }
-                if (!in_array($rule->param, $configured_profilefields)) {
-                    continue 2;
+                if (isset($rule->param) && !in_array($rule->param, $configured_profilefields)) {
+                    continue 2; // Rule uses a param that's not allowed in the plugin settings.
                 }
             }
             $enrol_attributes_instance = new enrol_attributes_plugin();
