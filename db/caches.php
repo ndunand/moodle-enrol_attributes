@@ -16,30 +16,16 @@
 
 /**
  * @package    enrol_attributes
+ * @copyright  2018 Université de Lausanne http://www.unil.ch
  * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2018 Université de Lausanne (@link http://www.unil.ch}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = [
-        [
-                'classname' => 'enrol_attributes\task\processenrolments_task',
-                'blocking'  => 0,
-                'minute'    => 0,
-                'hour'      => '*',
-                'day'       => '*',
-                'month'     => '*',
-                'dayofweek' => '*'
-        ],
-        [
-                'classname' => 'enrol_attributes\task\invalidatecache_task',
-                'blocking' => 0,
-                'minute' => '*/15',
-                'hour' => '*',
-                'day' => '*',
-                'month' => '*',
-                'dayofweek' => '*'
-        ],
-];
+$definitions = array(
+        'dbquerycache' => array(
+                'mode' => cache_store::MODE_APPLICATION
+        ),
+);
+

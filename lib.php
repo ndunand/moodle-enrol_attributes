@@ -139,11 +139,10 @@ class enrol_attributes_plugin extends enrol_plugin {
         );
     }
 
-    public static function arraysyntax_tosql($arraysyntax) {
+    public static function arraysyntax_tosql($arraysyntax, &$join_id = 0) {
         global $DB;
         $select = '';
         $where = '1=1';
-        static $join_id = 0;
         $params = array();
         $customuserfields = $arraysyntax['customuserfields'];
 
@@ -164,7 +163,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                         'customuserfields' => $customuserfields,
                         'rules'            => $rule->rules
                 );
-                $sub_sql = self::arraysyntax_tosql($sub_arraysyntax);
+                $sub_sql = self::arraysyntax_tosql($sub_arraysyntax, $join_id);
                 $select .= ' ' . $sub_sql['select'] . ' ';
                 $where .= ' ( ' . $sub_sql['where'] . ' ) ';
                 $params = array_merge($params, $sub_sql['params']);
@@ -241,7 +240,14 @@ class enrol_attributes_plugin extends enrol_plugin {
     public static function process_enrolments($event = null, $instanceid = null) {
         global $DB;
         $nbenrolled = 0;
+        $nbdbqueries = 0;
+        $nbcachequeries = 0;
+        $nbpossunenrol = 0;
+        $nbpossenrol = 0;
+        $nbunenrolled = 0;
         $possible_unenrolments = array();
+
+        $cache = cache::make('enrol_attributes', 'dbquerycache');
 
         if ($instanceid) {
             // We're processing one particular instance, making sure it's active
@@ -268,13 +274,25 @@ class enrol_attributes_plugin extends enrol_plugin {
                 // Let's check if there are any potential unenroling instances
                 $userid = (int)$event->userid;
                 $possible_unenrolments =
-                        $DB->get_records_sql("SELECT id, enrolid FROM {user_enrolments} WHERE userid = ? AND enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 > 0 ) ",
+                        $DB->get_records_sql("SELECT id, enrolid, userid FROM {user_enrolments} WHERE userid = ? AND enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 > 0 ) ",
                                 array($userid));
+            }
+            else {
+                $possible_unenrolments =
+                        $DB->get_records_sql("SELECT id, enrolid, userid FROM {user_enrolments} WHERE enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 > 0 ) ",
+                                array());
             }
         }
 
         // are we to unenrol/suspend from anywhere?
         foreach ($possible_unenrolments as $id => $user_enrolment) {
+            $nbpossunenrol++;
+            if (!$event && !$instanceid) {
+                // we only want output if runnning within the scheduled task
+                if ($nbpossunenrol % 1000 === 0) {
+                    mtrace('-', '');
+                }
+            }
 
             $unenrol_attributes_record = $DB->get_record('enrol', array(
                     'enrol'      => 'attributes',
@@ -289,12 +307,24 @@ class enrol_attributes_plugin extends enrol_plugin {
                 continue;
             }
 
+            $userid = $user_enrolment->userid;
+
             $select = 'SELECT DISTINCT u.id FROM {user} u';
             $where = ' WHERE u.id=' . $userid . ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($unenrol_attributes_record->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
-            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
-                    $arraysql['params']);
+            $dbquerycachekey = md5($select . serialize($arraysql) . $where);
+            $users_cache = $cache->get($dbquerycachekey);
+            if ($users_cache) {
+                $users = unserialize($users_cache);
+                $nbcachequeries++;
+            }
+            else {
+                $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
+                        $arraysql['params']);
+                $nbdbqueries++;
+                $cache->set($dbquerycachekey, serialize($users));
+            }
 
             if (!array_key_exists($userid, $users)) {
                 // User is to be either unenrolled or suspended
@@ -305,11 +335,17 @@ class enrol_attributes_plugin extends enrol_plugin {
                 else if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND) {
                     $enrol_attributes_instance->update_user_enrol($unenrol_attributes_record, (int)$userid, ENROL_USER_SUSPENDED);
                 }
+                $nbunenrolled++;
             }
         }
 
         // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {
+            $nbpossenrol++;
+            if (!$event && !$instanceid) {
+                // we only want output if runnning within the scheduled task
+                mtrace('+', '');
+            }
 
             $enroldetails = json_decode($enrol_attributes_record->customtext1);
             if (isset($enroldetails->rules)) {
@@ -342,9 +378,18 @@ class enrol_attributes_plugin extends enrol_plugin {
             $where .= ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($enrol_attributes_record->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
-
-            $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
-                    $arraysql['params']);
+            $dbquerycachekey = md5($select . serialize($arraysql) . $where);
+            $users_cache = $cache->get($dbquerycachekey);
+            if ($users_cache) {
+                $users = unserialize($users_cache);
+                $nbcachequeries++;
+            }
+            else {
+                $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
+                        $arraysql['params']);
+                $nbdbqueries++;
+                $cache->set($dbquerycachekey, serialize($users));
+            }
             foreach ($users as $user) {
                 $recovergrades = null;
                 if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
@@ -358,6 +403,11 @@ class enrol_attributes_plugin extends enrol_plugin {
 
         if (!$event && !$instanceid) {
             // we only want output if runnning within the scheduled task
+            mtrace("\n" . 'enrol_attributes : ' . $nbdbqueries . ' DB queries.');
+            mtrace('enrol_attributes : ' . $nbcachequeries . ' cache queries.');
+            mtrace('enrol_attributes : ' . $nbpossenrol . ' enrolment instances.');
+            mtrace('enrol_attributes : ' . $nbpossunenrol . ' possible unenrolments.');
+            mtrace('enrol_attributes : ' . $nbunenrolled . ' unenrolments.');
             mtrace('enrol_attributes : enrolled ' . $nbenrolled . ' users.');
         }
 

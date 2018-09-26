@@ -21,25 +21,25 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace enrol_attributes\task;
 
-$tasks = [
-        [
-                'classname' => 'enrol_attributes\task\processenrolments_task',
-                'blocking'  => 0,
-                'minute'    => 0,
-                'hour'      => '*',
-                'day'       => '*',
-                'month'     => '*',
-                'dayofweek' => '*'
-        ],
-        [
-                'classname' => 'enrol_attributes\task\invalidatecache_task',
-                'blocking' => 0,
-                'minute' => '*/15',
-                'hour' => '*',
-                'day' => '*',
-                'month' => '*',
-                'dayofweek' => '*'
-        ],
-];
+class invalidatecache_task extends \core\task\scheduled_task {
+
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return 'Invalidate cache for Enrol by user profile fields';
+    }
+
+    /**
+     * Run cron.
+     */
+    public function execute() {
+        $cache = \cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+    }
+
+}
