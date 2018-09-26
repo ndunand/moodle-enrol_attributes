@@ -60,6 +60,9 @@ if ($ADMIN->fulltree) {
                 [], $customfields));
     }
 
+    // Listen to login events
+    $settings->add(new admin_setting_configcheckbox('enrol_attributes/observelogins', get_string('observelogins', 'enrol_attributes'), get_string('observelogins_desc', 'enrol_attributes'), 1));
+
     // Fields to update via Shibboleth login
     if (in_array('shibboleth', get_enabled_auth_plugins())) {
         $settings->add(new admin_setting_configtextarea('enrol_attributes/mappings',

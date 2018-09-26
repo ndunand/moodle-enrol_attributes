@@ -260,6 +260,11 @@ class enrol_attributes_plugin extends enrol_plugin {
                     'status' => 0
             ));
             if (!is_null($event)) {
+                // This is a login triggering
+                if (!get_config('enrol_attributes', 'observelogins')) {
+                    // Admin has decided not to process logins to save performance.
+                    return;
+                }
                 // Let's check if there are any potential unenroling instances
                 $userid = (int)$event->userid;
                 $possible_unenrolments =
