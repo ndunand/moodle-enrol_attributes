@@ -23,6 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once $CFG->dirroot . '/enrol/attributes/locallib.php';
+require_once($CFG->dirroot.'/group/lib.php');
 
 /**
  * Database enrolment plugin implementation.
@@ -234,6 +235,20 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
                         $enrol_attributes_record->roleid, 0, 0, ENROL_USER_ACTIVE, $recovergrades);
                 $nbenrolled++;
+                // Start modification
+                $id = $enrol_attributes_record->id;
+                $groups = $DB->get_records(
+                    'enrol_attributes_groups',
+                    array('enrolid' => $id),
+                    null,
+                    '*',
+                    null,
+                    null
+                );
+                foreach ($groups as $value) {
+                    groups_add_member($value->groupid, $user->id);
+                }
+                // End modification
             }
         }
 

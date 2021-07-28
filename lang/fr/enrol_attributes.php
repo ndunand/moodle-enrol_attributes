@@ -14,18 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package    enrol_attributes
- * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2018 Université de Lausanne (@link http://www.unil.ch}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+$string['group'] = 'Affectation aux groupes';
+$string['group_help'] = 'Vous pouvez affecter aucun ou plusieurs groupes';
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2021072100;
-$plugin->requires = 2018051700; // Moodle 3.5
-$plugin->component = 'enrol_attributes';
-$plugin->release = '2.9.1 for Moodle 3.5-3.11 (build 2021063000)';
-$plugin->maturity = MATURITY_STABLE;
 

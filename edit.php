@@ -79,6 +79,19 @@ else if ($data = $mform->get_data()) {
         $instance->customint1 = isset($data->customint1) ? ($data->customint1) : 0;
         $instance->customtext1 = $data->customtext1;
         $DB->update_record('enrol', $instance);
+        // Start modification
+        $groups = $data->groupselect;
+
+        $DB->delete_records('enrol_attributes_groups', array('enrolid' => $instance->id));
+
+        foreach ($groups as $value) {
+            $object = new stdClass();
+            $object->groupid = $value;
+            $object->enrolid = $instance->id;
+            $DB->insert_record('enrol_attributes_groups', $object);
+        }
+
+        // End modification
     }
     else {
         $fields = array(
@@ -87,7 +100,17 @@ else if ($data = $mform->get_data()) {
                 'customint1'  => isset($data->customint1),
                 'customtext1' => $data->customtext1
         );
-        $plugin->add_instance($course, $fields);
+        $id = $plugin->add_instance($course, $fields);
+
+        // Start modification
+        $groups = $data->groupselect;
+        foreach ($groups as $value) {
+            $object = new stdClass();
+            $object->groupid = $value;
+            $object->enrolid = $id;
+            $DB->insert_record('enrol_attributes_groups', $object);
+        }
+        // End modification
     }
 
     redirect($return);

@@ -60,3 +60,5 @@ $string['observelogins'] = 'Enrol users immediately at login';
 $string['observelogins_desc'] = 'Try to enrol users immediately when they log in. This can have a performance impact on your site, deactivate this if lots of users log in at the same time and their being enrolled at once becomes a bottleneck.';
 $string['cachedef_dbquerycache'] = 'DB query cache';
 
+$string['group'] = 'Group assignement';
+$string['group_help'] = 'You can assign none or multiples groups';

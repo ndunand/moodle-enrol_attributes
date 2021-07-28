@@ -29,7 +29,9 @@ require_once $CFG->dirroot . '/enrol/attributes/locallib.php';
 class enrol_attributes_edit_form extends moodleform {
 
     function definition() {
+        global $DB;
         $mform = $this->_form;
+
 
         list($instance, $plugin, $context) = $this->_customdata;
 
@@ -46,6 +48,36 @@ class enrol_attributes_edit_form extends moodleform {
         }
         $mform->addElement('select', 'roleid', get_string('role'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('default_roleid'));
+
+        // Start modification
+        $courseid = required_param('courseid', PARAM_INT);
+        $groups = groups_get_all_groups($courseid);
+
+        $groups2 = array();
+        foreach ($groups as $value) {
+            $groups2[$value->id] = $value->name;
+        }
+
+        $groupselector = $mform->addElement('autocomplete', 'groupselect', get_string('group', 'enrol_attributes'), $groups2);
+        $groupselector->setMultiple(true);
+        $mform->addHelpButton('groupselect', 'group', 'enrol_attributes');
+
+        $contains = $DB->get_records(
+            'enrol_attributes_groups',
+            array('enrolid' => $instance->id),
+            null,
+            'groupid',
+            null,
+            null
+        );
+        $defaults = array();
+        foreach ($contains as $value) {
+            array_push($defaults, $value->groupid);
+        }
+        $groupselector->setSelected($defaults);
+
+
+        // End modification
 
         $mform->addElement('textarea', 'customtext1', get_string('attrsyntax', 'enrol_attributes'), array(
                 'cols' => '60',
