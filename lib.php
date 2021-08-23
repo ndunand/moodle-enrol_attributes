@@ -250,6 +250,19 @@ class enrol_attributes_plugin extends enrol_plugin {
         return $nbenrolled;
     }
 
+    /**
+     * @param stdClass $instance
+     * @param int      $groupid
+     * @param int      $userid
+     *
+     * @throws coding_exception
+     */
+    public function restore_group_member($instance, $groupid, $userid) {
+        global $CFG;
+        require_once("$CFG->dirroot/group/lib.php");
+        groups_add_member($groupid, $userid);
+    }
+
     public static function attrsyntax_toarray($attrsyntax) { // TODO : protected
         global $DB;
 
