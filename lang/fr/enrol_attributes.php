@@ -14,16 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package    enrol_attributes
- * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  20128 Université de Lausanne (@link http://www.unil.ch}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+$string['group'] = 'Affectation aux groupes';
+$string['group_help'] = 'Vous pouvez affecter aucun ou plusieurs groupes';
+$string['no_custom_field'] = 'Il semblerait qu\'aucun attribut personnalisé ne soit défini. Cliquez <a href="{$a}" target="_blank">ici</a> pour en ajouter.';
 
-defined('MOODLE_INTERNAL') || die();
-
-const ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING = 0;
-const ENROL_ATTRIBUTES_WHENEXPIREDREMOVE = 1;
-const ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND = 2;
 

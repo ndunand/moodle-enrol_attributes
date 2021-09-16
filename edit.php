@@ -44,6 +44,13 @@ if (!enrol_is_enabled('attributes')) {
     redirect($return);
 }
 
+/* No custom field defined */
+if(!$DB->get_records('user_info_field')){
+    $url = new moodle_url('/user/profile/index.php');
+    \core\notification::warning(get_string('no_custom_field', 'enrol_attributes', $url->get_scheme() .'://'. $url->get_host() . $url->get_path()));
+}
+
+
 $plugin = enrol_get_plugin('attributes');
 
 if ($instanceid) {
@@ -71,26 +78,41 @@ $mform = new enrol_attributes_edit_form(null, array(
 if ($mform->is_cancelled()) {
     redirect($return);
 }
-else if ($data = $mform->get_data()) {
+elseif ($data = $mform->get_data()) {
 
     if ($instance->id) {
         $instance->name = $data->name;
         $instance->roleid = $data->roleid;
         $instance->customint1 = isset($data->customint1) ? ($data->customint1) : 0;
-        $instance->customtext1 = $data->customtext1;
+        $instance->customtext1 = getRulesWithGroups($data);
         $DB->update_record('enrol', $instance);
+        // Start modification
+
+        // End modification
     }
     else {
         $fields = array(
                 'name'        => $data->name,
                 'roleid'      => $data->roleid,
                 'customint1'  => isset($data->customint1),
-                'customtext1' => $data->customtext1
+                'customtext1' => getRulesWithGroups($data)
         );
-        $plugin->add_instance($course, $fields);
+        $id = $plugin->add_instance($course, $fields);
     }
 
     redirect($return);
+}
+
+/**
+ * Adds groups to the rules object
+ * @param $data
+ * @return false|string
+ * @throws \JsonException
+ */
+function getRulesWithGroups($data){
+    $rules = json_decode($data->customtext1, true, 512, JSON_THROW_ON_ERROR);
+    $rules['groups'] = $data->groupselect;
+    return json_encode($rules, JSON_THROW_ON_ERROR);
 }
 
 $PAGE->set_heading($course->fullname);

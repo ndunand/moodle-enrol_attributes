@@ -58,7 +58,11 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configmultiselect('enrol_attributes/profilefields',
                 get_string('profilefields', 'enrol_attributes'), get_string('profilefields_desc', 'enrol_attributes'),
                 [], $customfields));
+    } elseif($PAGE->url->get_param('section') === 'enrolsettingsattributes'){
+        $url = new moodle_url('/user/profile/index.php');
+        \core\notification::warning(get_string('no_custom_field', 'enrol_attributes', $url->get_scheme() .'://'. $url->get_host() . $url->get_path()));
     }
+
 
     // Listen to login events
     $settings->add(new admin_setting_configcheckbox('enrol_attributes/observelogins', get_string('observelogins', 'enrol_attributes'), get_string('observelogins_desc', 'enrol_attributes'), 1));

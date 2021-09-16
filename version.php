@@ -23,9 +23,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2021082400;
+$plugin->version = 2021082408;
 $plugin->requires = 2018051700; // Moodle 3.5
 $plugin->component = 'enrol_attributes';
-$plugin->release = '2.9.2 for Moodle 3.5-3.11 (build 2021082400)';
+$plugin->release = '2.9.3 for Moodle 3.5-3.11 (build 2021082400)';
 $plugin->maturity = MATURITY_STABLE;
 

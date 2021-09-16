@@ -42,7 +42,7 @@ $string['mappings_desc'] =
         'When using Shibboleth authentication, this plugin can automatically update a user\'s profile upon each login.<br><br>For instance, if you want to update the user\'s <code>homeorganizationtype</code> profile field with the Shibboleth attribute <code>Shib-HomeOrganizationType</code> (provided that is the environment variable available to the server during login), you can enter on one line: <code>Shib-HomeOrganizationType:homeorganizationtype</code><br>You may enter as many lines as needed.<br><br>To not use this feature or if you don\'t use Shibboleth authentication, simple leave this empty.';
 $string['profilefields'] = 'Profile fields to be used in the selector';
 $string['profilefields_desc'] =
-        'Which user profile fields can be used when configuring an enrolment instance?<br><br><b>If you don\'t select any role here, this makes the plugin moot and hence disables its use in courses.</b><br>The feature below may however still be used in this case.';
+        'Which user profile fields can be used when configuring an enrolment instance?<br><br><b>If you don\'t select any attribute here, this makes the plugin moot and hence disables its use in courses.</b><br>The feature below may however still be used in this case.';
 $string['removewhenexpired'] = 'Unenrol after attributes expiration';
 $string['removewhenexpired_help'] = 'Unenrol users upon login if they don\'t match the attribute rule anymore.';
 $string['addcondition'] = "Add condition";
@@ -59,4 +59,6 @@ $string['whenexpiredsuspend'] = 'Suspend user';
 $string['observelogins'] = 'Enrol users immediately at login';
 $string['observelogins_desc'] = 'Try to enrol users immediately when they log in. This can have a performance impact on your site, deactivate this if lots of users log in at the same time and their being enrolled at once becomes a bottleneck.';
 $string['cachedef_dbquerycache'] = 'DB query cache';
-
+$string['group'] = 'Group assignement';
+$string['group_help'] = 'You can assign none or multiples groups';
+$string['no_custom_field'] = 'There seem to be no custom field. Head to <a href="{$a}" target="_blank">user settings</a> to add one.';
