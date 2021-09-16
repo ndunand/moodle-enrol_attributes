@@ -131,11 +131,9 @@ class enrol_attributes_plugin extends enrol_plugin {
         // are we to unenrol/suspend from anywhere?
         foreach ($possible_unenrolments as $id => $user_enrolment) {
             $nbpossunenrol++;
-            if (!$event && !$instanceid) {
-                // we only want output if runnning within the scheduled task
-                if ($nbpossunenrol % 1000 === 0) {
-                    mtrace('-', '');
-                }
+            // we only want output if runnning within the scheduled task
+            if (!$event && !$instanceid && $nbpossunenrol % 1000 === 0 && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
+                mtrace('-', '');
             }
 
             $unenrol_attributes_record = $DB->get_record('enrol', array(
@@ -185,7 +183,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {
             $nbpossenrol++;
-            if (!$event && !$instanceid) {
+            if (!$event && !$instanceid && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
                 // we only want output if runnning within the scheduled task
                 mtrace('+', '');
             }
@@ -242,23 +240,16 @@ class enrol_attributes_plugin extends enrol_plugin {
                         $enrol_attributes_record->roleid, 0, 0, ENROL_USER_ACTIVE, $recovergrades);
                 $nbenrolled++;
                 // Start modification
-                $id = $enrol_attributes_record->id;
-                $groups = $DB->get_records(
-                    'enrol_attributes_groups',
-                    array('enrolid' => $id),
-                    null,
-                    '*',
-                    null,
-                    null
-                );
-                foreach ($groups as $value) {
-                    groups_add_member($value->groupid, $user->id);
+
+                $groups = json_decode($enrol_attributes_record->customtext1, true)['groups'] ?? [];
+                foreach ($groups as $groupid) {
+                    groups_add_member($groupid, $user->id);
                 }
                 // End modification
             }
         }
 
-        if (!$event && !$instanceid) {
+        if (!$event && !$instanceid && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
             // we only want output if runnning within the scheduled task
             mtrace("\n" . 'enrol_attributes : ' . $nbdbqueries . ' DB queries.');
             mtrace('enrol_attributes : ' . $nbcachequeries . ' cache queries.');

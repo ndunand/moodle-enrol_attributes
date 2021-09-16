@@ -1,24 +1,110 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * ${PLUGINNAME} file description here.
- *
- * @package    ${PLUGINNAME}
- * @copyright  2021 SysBind Ltd. <service@sysbind.co.il>
- * @auther     alexandn
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+global $CFG;
+
+if (!defined('MOODLE_INTERNAL')) {
+    die('Direct access to this script is forbidden.'); //  It must be included from a Moodle page
+}
+
+class attributes_testcase extends advanced_testcase
+{
+    /**
+     * @var \stdClass
+     */
+    private $course;
+    /**
+     * @var \stdClass
+     */
+    private $group;
+    /**
+     * @var \stdClass
+     */
+    private $field;
+    /**
+     * @var \stdClass
+     */
+    private $user;
+
+    protected function setUp(): void
+    {
+        global $DB;
+
+        $this->course = self::getDataGenerator()->create_course();
+        $this->group = self::getDataGenerator()->create_group(['courseid' => $this->course->id]);
+        $this->field = self::getDataGenerator()->create_custom_profile_field(
+            ['datatype' => 'text', 'shortname' => 'testprofilefield', 'name' => 'testprofilefield']
+        );
+        $this->user = self::getDataGenerator()->create_user(
+            [
+                'username' => 'toto@example.com',
+                'email' => 'toto@example.com',
+                'auth' => 'shibboleth',
+            ]
+        );
+
+        /* Set configuration (enrol attributes) */
+        set_config( 'profilefields', 'testprofilefield', 'enrol_attributes');
+
+        /* Creating link between user and custom user field */
+        $user_info_data = (object)[
+            'userid' => $this->user->id,
+            'fieldid' => $this->field->id,
+            'data' => 'test'
+        ];
+        $DB->insert_record('user_info_data', $user_info_data);
+
+        /* Creating a new enrolment */
+        $enrol = (object)[
+            'enrol' => 'attributes',
+            'courseid' => $this->course->id,
+            'customint1' => ENROL_ATTRIBUTES_WHENEXPIREDREMOVE,
+            'customtext1' => '{"rules":[{"param":"testprofilefield","value":"test"}],"groups":[' . $this->group->id . ']}'
+        ];
+        $DB->insert_record('enrol', $enrol);
+
+        /* Actually enrolling the user */
+        enrol_attributes_plugin::process_enrolments();
+    }
+
+    public function testAddUserEnrolByGroup()
+    {
+        $this->resetAfterTest();
+        self::assertArrayHasKey($this->user->id, groups_get_members($this->group->id));
+    }
+
+    public function testEnrolUser(){
+        $this->resetAfterTest();
+        self::assertTrue(is_enrolled(context_course::instance($this->course->id), $this->user));
+    }
+
+    public function testUnenrolUser(){
+        //Simulating the invalidatecache task run by the cron
+        $cache = \cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+
+        $this->resetAfterTest();
+        $this->unenrolUser();
+        self::assertFalse(is_enrolled(context_course::instance($this->course->id), $this->user));
+    }
+
+    function testDeleteUserFromGroupAfterUnenrolment()
+    {
+        //Simulating the invalidatecache task run by the cron
+        $cache = \cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+
+        $this->resetAfterTest();
+        $this->unenrolUser();
+        /* Checking if user is deleted from group */
+        self::assertArrayNotHasKey($this->user->id, groups_get_members($this->group->id));
+    }
+
+    function unenrolUser()
+    {
+        global $DB;
+        /* Removing user custom attribute */
+        $DB->delete_records('user_info_data', ['userid' => $this->user->id, 'fieldid' => $this->field->id]);
+        /* Updating enrolments */
+        enrol_attributes_plugin::process_enrolments();
+    }
+}
