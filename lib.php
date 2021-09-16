@@ -333,23 +333,21 @@ class enrol_attributes_plugin extends enrol_plugin {
         );
     }
 
-    public static function purge_instance($instanceid, $context) {
-        if (!$instanceid) {
-            return false;
-        }
+    public static function purge_instance($instanceid) {
         global $DB;
-        if (!$DB->delete_records('role_assignments', array(
-                'component' => 'enrol_attributes',
-                'itemid'    => $instanceid
-        ))) {
-            return false;
-        }
-        if (!$DB->delete_records('user_enrolments', array('enrolid' => $instanceid))) {
-            return false;
-        }
-        $context->mark_dirty();
+        $enrolplugininstance = new self();
 
-        return true;
+        if($instanceid) {
+            $enrol_attributes_record = $DB->get_record('enrol', ['id' => $instanceid]);
+            $enrolment_records = $DB->get_records('user_enrolments', ['enrolid'  => $enrol_attributes_record->id]);
+            foreach ($enrolment_records as $record) {
+                $enrolplugininstance->unenrol_user($enrol_attributes_record, $record->userid);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
