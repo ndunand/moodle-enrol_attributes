@@ -44,6 +44,13 @@ if (!enrol_is_enabled('attributes')) {
     redirect($return);
 }
 
+/* No custom field defined */
+if(!$DB->get_records('user_info_field')){
+    $url = new moodle_url('/user/profile/index.php');
+    \core\notification::warning(get_string('no_custom_field', 'enrol_attributes', $url->get_scheme() .'://'. $url->get_host() . $url->get_path()));
+}
+
+
 $plugin = enrol_get_plugin('attributes');
 
 if ($instanceid) {
