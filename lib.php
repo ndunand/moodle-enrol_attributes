@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once $CFG->dirroot . '/enrol/attributes/locallib.php';
-require_once($CFG->dirroot.'/group/lib.php');
+require_once $CFG->dirroot.'/group/lib.php';
 
 /**
  * Database enrolment plugin implementation.
@@ -32,6 +32,10 @@ require_once($CFG->dirroot.'/group/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_attributes_plugin extends enrol_plugin {
+    /**
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public static function process_login(\core\event\user_loggedin $event) {
         global $CFG, $DB;
         // we just received the event from the authentication system; check if well-formed:
@@ -39,8 +43,8 @@ class enrol_attributes_plugin extends enrol_plugin {
             // didn't get an user ID, return as there is nothing we can do
             return true;
         }
-        if (in_array('shibboleth',
-                        get_enabled_auth_plugins()) && $_SERVER['SCRIPT_FILENAME'] == $CFG->dirroot . '/auth/shibboleth/index.php') {
+        if (in_array('shibboleth', get_enabled_auth_plugins())
+            && $_SERVER['SCRIPT_FILENAME'] == $CFG->dirroot . '/auth/shibboleth/index.php') {
             // we did get this event from the Shibboleth authentication plugin,
             // so let's try to make the relevant mappings, ensuring that necessary profile fields exist and Shibboleth attributes are provided:
             $customfieldrecords = $DB->get_records('user_info_field');
@@ -51,8 +55,9 @@ class enrol_attributes_plugin extends enrol_plugin {
             $mapping = array();
             $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
             foreach ($mappings_str as $mapping_str) {
-                if (preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches) && in_array($matches[2],
-                                $customfields) && array_key_exists($matches[1], $_SERVER)) {
+                if (array_key_exists($matches[1], $_SERVER)
+                    && preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches)
+                    && in_array($matches[2], $customfields)) {
                     $mapping[$matches[1]] = $matches[2];
                 }
             }
@@ -73,6 +78,10 @@ class enrol_attributes_plugin extends enrol_plugin {
         self::process_enrolments($event);
     }
 
+    /**
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public static function process_enrolments($event = null, $instanceid = null) {
         global $DB;
         $nbenrolled = 0;
@@ -112,8 +121,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $possible_unenrolments =
                         $DB->get_records_sql("SELECT id, enrolid, userid FROM {user_enrolments} WHERE userid = ? AND enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 > 0 ) ",
                                 array($userid));
-            }
-            else {
+            } else {
                 $possible_unenrolments =
                         $DB->get_records_sql("SELECT id, enrolid, userid FROM {user_enrolments} WHERE enrolid IN ( SELECT id FROM {enrol} WHERE enrol = 'attributes' AND customint1 > 0 ) ",
                                 array());
@@ -135,6 +143,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                     'status' => 0,
                     'id'     => $user_enrolment->enrolid
             ));
+
             if (!$unenrol_attributes_record) {
                 continue;
             }
@@ -184,8 +193,7 @@ class enrol_attributes_plugin extends enrol_plugin {
             $enroldetails = json_decode($enrol_attributes_record->customtext1);
             if (isset($enroldetails->rules)) {
                 $rules = $enroldetails->rules;
-            }
-            else {
+            } else {
                 // skip this record, as it is malformed
                 continue;
             }
@@ -213,18 +221,19 @@ class enrol_attributes_plugin extends enrol_plugin {
             $arraysyntax = self::attrsyntax_toarray($enrol_attributes_record->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
             $dbquerycachekey = md5($select . serialize($arraysql) . $where);
+
+            //TODO fix bug related to cache : users are not unenrolled
             $users_cache = $cache->get($dbquerycachekey);
             if ($users_cache) {
                 $users = unserialize($users_cache);
                 $nbcachequeries++;
-            }
-            else {
+            } else {
                 $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
                         $arraysql['params']);
                 $nbdbqueries++;
                 $cache->set($dbquerycachekey, serialize($users));
             }
-            foreach ($users as $user) {
+            foreach ($users ?? [] as $user) {
                 $recovergrades = null;
                 if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
                     $recovergrades = false; // do not try to recover grades if user is already enrolled
@@ -293,7 +302,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $where .= ' AND ';
             }
             // first just check if we have a value 'ANY' to enroll all people :
-            if (isset($rule->value) && $rule->value == 'ANY') {
+            if (isset($rule->value) && $rule->value === 'ANY') {
                 $where .= '1=1';
                 continue;
             }
@@ -306,25 +315,25 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $select .= ' ' . $sub_sql['select'] . ' ';
                 $where .= ' ( ' . $sub_sql['where'] . ' ) ';
                 $params = array_merge($params, $sub_sql['params']);
-            }
-            else {
-                if ($customkey = array_search($rule->param, $customuserfields, true)) {
-                    // custom user field actually exists
-                    $join_id++;
-                    $data = 'd' . $join_id . '.data';
-                    $select .= ' RIGHT JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id AND d' . $join_id . '.fieldid = ' . $customkey;
-                    $where .= ' (' . $DB->sql_compare_text($data) . ' = ' . $DB->sql_compare_text('?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
-                                    '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
-                                    '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
-                    array_push($params, $rule->value, '%;' . $rule->value, $rule->value . ';%',
-                            '%;' . $rule->value . ';%');
-                }
+            } elseif ($customkey = array_search($rule->param, $customuserfields, true)) {
+                // custom user field actually exists
+                $join_id++;
+                $data = 'd' . $join_id . '.data';
+                $select .= ' RIGHT JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id AND d' . $join_id . '.fieldid = ' . $customkey;
+                $where .= ' (' . $DB->sql_compare_text($data) . ' = ' . $DB->sql_compare_text('?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
+                                '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
+                                '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
+                array_push($params, $rule->value, '%;' . $rule->value, $rule->value . ';%',
+                        '%;' . $rule->value . ';%');
             }
         }
-
-        $where = preg_replace('/^1=1 AND/', '', $where);
+        $where = preg_replace('/^1=1 AND ?/', '', $where);
         $where = preg_replace('/^1=1 OR/', '', $where);
         $where = preg_replace('/^1=1/', '', $where);
+
+        if($where === '') {
+            $where = 0;
+        }
 
         return array(
                 'select' => $select,
@@ -468,9 +477,10 @@ class enrol_attributes_plugin extends enrol_plugin {
      * By defaults looks for manage.php file and tests for manage capability.
      *
      * @param navigation_node $instancesnode
-     * @param stdClass        $instance
+     * @param stdClass $instance
      *
      * @return moodle_url;
+     * @throws \coding_exception|\moodle_exception
      */
     public function add_course_navigation($instancesnode, stdClass $instance) {
         if ($instance->enrol !== 'attributes') {
