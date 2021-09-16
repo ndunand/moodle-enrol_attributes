@@ -15,17 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    enrol_attributes
- * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2018 Université de Lausanne (@link http://www.unil.ch}
+ * ${PLUGINNAME} file description here.
+ *
+ * @package    ${PLUGINNAME}
+ * @copyright  2021 SysBind Ltd. <service@sysbind.co.il>
+ * @auther     alexandn
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2021082408;
-$plugin->requires = 2018051700; // Moodle 3.5
-$plugin->component = 'enrol_attributes';
-$plugin->release = '2.9.1 for Moodle 3.5-3.11 (build 2021063000)';
-$plugin->maturity = MATURITY_STABLE;
-

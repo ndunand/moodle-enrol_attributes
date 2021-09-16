@@ -71,25 +71,15 @@ $mform = new enrol_attributes_edit_form(null, array(
 if ($mform->is_cancelled()) {
     redirect($return);
 }
-else if ($data = $mform->get_data()) {
+elseif ($data = $mform->get_data()) {
 
     if ($instance->id) {
         $instance->name = $data->name;
         $instance->roleid = $data->roleid;
         $instance->customint1 = isset($data->customint1) ? ($data->customint1) : 0;
-        $instance->customtext1 = $data->customtext1;
+        $instance->customtext1 = getRulesWithGroups($data);
         $DB->update_record('enrol', $instance);
         // Start modification
-        $groups = $data->groupselect;
-
-        $DB->delete_records('enrol_attributes_groups', array('enrolid' => $instance->id));
-
-        foreach ($groups as $value) {
-            $object = new stdClass();
-            $object->groupid = $value;
-            $object->enrolid = $instance->id;
-            $DB->insert_record('enrol_attributes_groups', $object);
-        }
 
         // End modification
     }
@@ -98,22 +88,24 @@ else if ($data = $mform->get_data()) {
                 'name'        => $data->name,
                 'roleid'      => $data->roleid,
                 'customint1'  => isset($data->customint1),
-                'customtext1' => $data->customtext1
+                'customtext1' => getRulesWithGroups($data)
         );
         $id = $plugin->add_instance($course, $fields);
-
-        // Start modification
-        $groups = $data->groupselect;
-        foreach ($groups as $value) {
-            $object = new stdClass();
-            $object->groupid = $value;
-            $object->enrolid = $id;
-            $DB->insert_record('enrol_attributes_groups', $object);
-        }
-        // End modification
     }
 
     redirect($return);
+}
+
+/**
+ * Adds groups to the rules object
+ * @param $data
+ * @return false|string
+ * @throws \JsonException
+ */
+function getRulesWithGroups($data){
+    $rules = json_decode($data->customtext1, true, 512, JSON_THROW_ON_ERROR);
+    $rules['groups'] = $data->groupselect;
+    return json_encode($rules, JSON_THROW_ON_ERROR);
 }
 
 $PAGE->set_heading($course->fullname);

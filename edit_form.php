@@ -62,23 +62,11 @@ class enrol_attributes_edit_form extends moodleform {
         $groupselector->setMultiple(true);
         $mform->addHelpButton('groupselect', 'group', 'enrol_attributes');
 
-        $contains = $DB->get_records(
-            'enrol_attributes_groups',
-            array('enrolid' => $instance->id),
-            null,
-            'groupid',
-            null,
-            null
-        );
-        $defaults = array();
-        foreach ($contains as $value) {
-            array_push($defaults, $value->groupid);
-        }
-        $groupselector->setSelected($defaults);
+        $recordgroups = property_exists($instance, 'customtext1') ? json_decode($instance->customtext1)->groups : [];
+        $recordgroups === [] ?: $groupselector->setSelected($recordgroups);
 
 
         // End modification
-
         $mform->addElement('textarea', 'customtext1', get_string('attrsyntax', 'enrol_attributes'), array(
                 'cols' => '60',
                 'rows' => '8'

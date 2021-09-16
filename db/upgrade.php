@@ -28,7 +28,7 @@ function xmldb_enrol_attributes_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2021070800) {
+    if ($oldversion < 2021082408) {
 
         // Define table
         $table = new xmldb_table('enrol_attributes_groups');
@@ -49,7 +49,7 @@ function xmldb_enrol_attributes_upgrade($oldversion) {
         }
 
         // Apply savepoint reached.
-        upgrade_plugin_savepoint(true, 2021070800, 'enrol', 'attributes');
+        upgrade_plugin_savepoint(true, 2021082408, 'enrol', 'attributes');
     }
 
     return true;

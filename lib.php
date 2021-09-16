@@ -143,10 +143,8 @@ class enrol_attributes_plugin extends enrol_plugin {
                 continue;
             }
 
-            $userid = $user_enrolment->userid;
-
             $select = 'SELECT DISTINCT u.id FROM {user} u';
-            $where = ' WHERE u.id=' . $userid . ' AND u.deleted=0 AND ';
+            $where = ' WHERE u.id=' . $user_enrolment->userid . ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($unenrol_attributes_record->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
             $dbquerycachekey = md5($select . serialize($arraysql) . $where);
@@ -162,14 +160,13 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $cache->set($dbquerycachekey, serialize($users));
             }
 
-            if (!array_key_exists($userid, $users)) {
+            if (!array_key_exists($user_enrolment->userid, $users)) {
                 // User is to be either unenrolled or suspended
                 $enrol_attributes_instance = new enrol_attributes_plugin();
                 if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDREMOVE) {
-                    $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$userid);
-                }
-                else if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND) {
-                    $enrol_attributes_instance->update_user_enrol($unenrol_attributes_record, (int)$userid,
+                    $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$user_enrolment->userid);
+                } elseif ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND) {
+                    $enrol_attributes_instance->update_user_enrol($unenrol_attributes_record, (int)$user_enrolment->userid,
                             ENROL_USER_SUSPENDED);
                 }
                 $nbunenrolled++;
@@ -288,7 +285,6 @@ class enrol_attributes_plugin extends enrol_plugin {
         $where = '1=1';
         $params = array();
         $customuserfields = $arraysyntax['customuserfields'];
-
         foreach ($arraysyntax['rules'] as $rule) {
             if (isset($rule->cond_op)) {
                 $where .= ' ' . strtoupper($rule->cond_op) . ' ';
