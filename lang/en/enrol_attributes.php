@@ -61,4 +61,4 @@ $string['observelogins_desc'] = 'Try to enrol users immediately when they log in
 $string['cachedef_dbquerycache'] = 'DB query cache';
 $string['group'] = 'Group assignement';
 $string['group_help'] = 'You can assign none or multiples groups';
-$string['no_custom_field'] = 'There seem to be no custom field. Head to <a href="{$a}" target="_blank">user settings</a> to add one.';
+$string['no_custom_field'] = 'There seems to be no custom field. Head to <a href="{$a}" target="_blank">user settings</a> to add one.';
