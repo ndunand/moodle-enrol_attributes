@@ -55,8 +55,8 @@ class enrol_attributes_plugin extends enrol_plugin {
             $mapping = array();
             $mappings_str = explode("\n", str_replace("\r", '', get_config('enrol_attributes', 'mappings')));
             foreach ($mappings_str as $mapping_str) {
-                if (array_key_exists($matches[1], $_SERVER)
-                    && preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches)
+                if (preg_match('/^\s*([^: ]+)\s*:\s*([^: ]+)\s*$/', $mapping_str, $matches)
+                    && array_key_exists($matches[1], $_SERVER)
                     && in_array($matches[2], $customfields)) {
                     $mapping[$matches[1]] = $matches[2];
                 }

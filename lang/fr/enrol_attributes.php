@@ -16,6 +16,6 @@
 
 $string['group'] = 'Affectation aux groupes';
 $string['group_help'] = 'Vous pouvez affecter aucun ou plusieurs groupes';
-$string['no_custom_field'] = 'Il semblerait qu\'aucun attribut personnalisé ne soit défini. Cliquez <a href="{$a}" target="_blank">ici</a> pour en ajouter.';
+$string['no_custom_field'] = 'Aucun attribut n\'est défini. Cliquez <a href="{$a}" target="_blank">ici</a> pour en ajouter.';
 
 

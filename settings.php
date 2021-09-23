@@ -60,7 +60,7 @@ if ($ADMIN->fulltree) {
                 [], $customfields));
     } elseif($PAGE->url->get_param('section') === 'enrolsettingsattributes'){
         $url = new moodle_url('/user/profile/index.php');
-        \core\notification::warning(get_string('no_custom_field', 'enrol_attributes', $url->get_scheme() .'://'. $url->get_host() . $url->get_path()));
+        \core\notification::warning(get_string('no_custom_field', 'enrol_attributes',$CFG->wwwroot . '/user/profile/index.php'));
     }
 
 
