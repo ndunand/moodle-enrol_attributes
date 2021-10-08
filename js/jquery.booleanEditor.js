@@ -91,8 +91,7 @@
             r = $(this);
             if (r.hasClass('group')) {
                 ser_obj['rules'].push(serialize(this));
-            }
-            else {
+            } else {
                 var cond_obj = {
                     param:   $("select[name='comparison-param'] option:selected", r).val(),
                     comp_op: $("select[name='comparison-operator']", r).val(),
@@ -117,8 +116,7 @@
 
             if (r.hasClass('group')) {
                 expression += c_op + '<span class="group-op group-group">(</span>' + getBooleanExpression(this) + '<span class="group-op group-group">)</span>';
-            }
-            else {
+            } else {
                 expression += [
                     c_op,
                     '<span class="group-op group-cond">(</span>',
@@ -145,7 +143,6 @@
 
 
     function createRuleList(list_elem, rules) {
-        //var list_elem = $(list_elem);
 
         if (list_elem.parent("li").eq(0).hasClass("group")) {
             console.log("inside a group");
