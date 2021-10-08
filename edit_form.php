@@ -53,17 +53,25 @@ class enrol_attributes_edit_form extends moodleform {
         $courseid = required_param('courseid', PARAM_INT);
         $groups = groups_get_all_groups($courseid);
 
-        $groups2 = array();
-        foreach ($groups as $value) {
-            $groups2[$value->id] = $value->name;
+        if (count($groups)) {
+            $groups2 = array();
+            foreach ($groups as $value) {
+                $groups2[$value->id] = $value->name;
+            }
+
+            $groupselector = $mform->addElement('autocomplete', 'groupselect', get_string('group', 'enrol_attributes'),
+                    $groups2);
+            $groupselector->setMultiple(true);
+            $mform->addHelpButton('groupselect', 'group', 'enrol_attributes');
+
+            $recordgroups =
+                    (property_exists($instance, 'customtext1') && property_exists(json_decode($instance->customtext1), 'groups')) ? json_decode($instance->customtext1)->groups : [];
+            $recordgroups === [] ?: $groupselector->setSelected($recordgroups);
         }
-
-        $groupselector = $mform->addElement('autocomplete', 'groupselect', get_string('group', 'enrol_attributes'), $groups2);
-        $groupselector->setMultiple(true);
-        $mform->addHelpButton('groupselect', 'group', 'enrol_attributes');
-
-        $recordgroups = property_exists($instance, 'customtext1') ? json_decode($instance->customtext1)->groups : [];
-        $recordgroups === [] ?: $groupselector->setSelected($recordgroups);
+        else {
+            $groupselector = $mform->addElement('static', 'groupselect', get_string('group', 'enrol_attributes'), html_writer::div(get_string('nogroups', 'group'), 'alert alert-info'));
+            $mform->addHelpButton('groupselect', 'group', 'enrol_attributes');
+        }
 
 
         // End modification
