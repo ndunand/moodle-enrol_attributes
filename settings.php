@@ -58,7 +58,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configmultiselect('enrol_attributes/profilefields',
                 get_string('profilefields', 'enrol_attributes'), get_string('profilefields_desc', 'enrol_attributes'),
                 [], $customfields));
-    } elseif($PAGE->url->get_param('section') === 'enrolsettingsattributes'){
+    } else {
         $url = new moodle_url('/user/profile/index.php');
         \core\notification::warning(get_string('no_custom_field', 'enrol_attributes',$CFG->wwwroot . '/user/profile/index.php'));
     }
