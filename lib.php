@@ -337,6 +337,8 @@ class enrol_attributes_plugin extends enrol_plugin {
 
         if($where === '') {
             $where = 0;
+        } else {
+            $where = " ( $where ) ";
         }
 
         return array(
