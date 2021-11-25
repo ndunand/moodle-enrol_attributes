@@ -6,6 +6,8 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); //  It must be included from a Moodle page
 }
 
+require_once $CFG->dirroot . '/enrol/attributes/lib.php';
+
 class attributes_testcase extends advanced_testcase
 {
     /**
@@ -108,3 +110,4 @@ class attributes_testcase extends advanced_testcase
         enrol_attributes_plugin::process_enrolments();
     }
 }
+
