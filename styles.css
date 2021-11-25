@@ -16,11 +16,11 @@
 }
 
 .enrol-attributes-boolean-editor li.rule {
-    background-color: #EEE;
+    background-color: #eee;
 }
 
 .enrol-attributes-boolean-editor li .sre-condition-rule-operator {
-    left: 0px;
+    left: 0;
     top: -33px;
     position: absolute;
 }
@@ -41,8 +41,19 @@
 }
 
 /*
-.enrol-attributes-boolean-editor li .button-pannel { position: absolute; right: 5px; bottom: -15px; padding: 2px; line-height: 0; border: 1px dotted #666; background: #E2E2E2; z-index: 100; }
-.enrol-attributes-boolean-editor li:hover > .button-pannel { border-style: solid; }
+.enrol-attributes-boolean-editor li .button-pannel {
+    position: absolute;
+    right: 5px;
+    bottom: -15px;
+    padding: 2px;
+    line-height: 0;
+    border: 1px dotted #666;
+    background: #E2E2E2;
+    z-index: 100;
+}
+.enrol-attributes-boolean-editor li:hover > .button-pannel {
+    border-style: solid;
+}
 */
 
 .enrol-attributes-boolean-editor li .button-pannel {
@@ -54,7 +65,7 @@
     line-height: 0;
     border: 1px solid #666;
     border-width: 0 1px 1px;
-    background: #EEE;
+    background: #eee;
 }
 
 .enrol-attributes-boolean-editor li.group > .button-pannel {
@@ -78,7 +89,7 @@
 
 .enrol-attributes-boolean-editor .button-pannel button {
     border: 1px solid #999;
-    background: #CCC url() 0px 0px no-repeat;
+    background: #ccc;
     margin-right: 3px;
     width: 18px;
     height: 18px;
@@ -86,15 +97,15 @@
 }
 
 .enrol-attributes-boolean-editor .button-pannel button:hover {
-    border-color: #BBB #999 #666;
+    border-color: #bbb #999 #666;
 }
 
 .enrol-attributes-boolean-editor .button-pannel button:active {
-    border-color: #C00;
+    border-color: #c00;
 }
 
 .enrol-attributes-boolean-editor .button-pannel button:last-child {
-    margin-right: 0px;
+    margin-right: 0;
 }
 
 .enrol-attributes-boolean-editor .button-pannel button span {
@@ -116,10 +127,10 @@
 #shib-expression .expr {
     margin-left: 10px;
     font-family: monospace;
-    font-size: 9pt;
-    line-height: 14pt;
+    font-size: 12px;
+    line-height: 16px;
     width: 600px;
-    background-color: #EEEEEE;
+    background-color: #eee;
 }
 
 #shib-expression .expr span {
@@ -127,16 +138,16 @@
 }
 
 #shib-expression .expr .cond-op {
-    color: #C00;
+    color: #c00;
 }
 
 #shib-expression .expr .group-op {
     color: #666;
-    font-size: 11pt;
+    font-size: 12px;
 }
 
 #shib-expression .expr .group-group {
-    font-size: 14pt;
+    font-size: 16px;
     color: #666;
 }
 
@@ -145,7 +156,7 @@
 }
 
 #shib-expression .expr .comp-op {
-    color: #0A0;
+    color: #0a0;
 }
 
 #shib-expression .expr .comp-val {
