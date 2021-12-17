@@ -336,7 +336,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         $where = preg_replace('/^1=1/', '', $where);
 
         if($where === '') {
-            $where = 0;
+            $where = false;
         } else {
             $where = " ( $where ) ";
         }
