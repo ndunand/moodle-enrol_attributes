@@ -33,9 +33,19 @@ class attributes_testcase extends advanced_testcase
 
         $this->course = self::getDataGenerator()->create_course();
         $this->group = self::getDataGenerator()->create_group(['courseid' => $this->course->id]);
-        $this->field = self::getDataGenerator()->create_custom_profile_field(
-            ['datatype' => 'text', 'shortname' => 'testprofilefield', 'name' => 'testprofilefield']
+
+        // Create a new profile field.
+        $new_rec = array(
+            'datatype' => 'text',
+            'shortname' => 'testprofilefield',
+            'name' => 'testprofilefield'
         );
+        $DB->insert_record('user_info_field', (object)$new_rec);
+
+        // name is not searcheable in the database, it must be removed before reading.
+        unset($new_rec['name']);
+        $this->field = $DB->get_record('user_info_field', $new_rec);
+
         $this->user = self::getDataGenerator()->create_user(
             [
                 'username' => 'toto@example.com',
@@ -106,6 +116,7 @@ class attributes_testcase extends advanced_testcase
         global $DB;
         /* Removing user custom attribute */
         $DB->delete_records('user_info_data', ['userid' => $this->user->id, 'fieldid' => $this->field->id]);
+        $DB->delete_records('user_info_field', ['id' => $this->field->id]);
         /* Updating enrolments */
         enrol_attributes_plugin::process_enrolments();
     }
