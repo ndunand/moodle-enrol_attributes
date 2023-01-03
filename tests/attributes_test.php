@@ -8,7 +8,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once $CFG->dirroot . '/enrol/attributes/lib.php';
 
-class attributes_testcase extends advanced_testcase
+class attributes_test extends advanced_testcase
 {
     /**
      * @var \stdClass

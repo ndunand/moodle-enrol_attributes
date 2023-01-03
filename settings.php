@@ -50,6 +50,23 @@ if ($ADMIN->fulltree) {
     // Fields to use in the selector
     $customfieldrecords = $DB->get_records('user_info_field');
     if ($customfieldrecords) {
+        $profilefields = explode(',', get_config('enrol_attributes', 'profilefields'));
+        $profilefieldselected = false;
+        foreach ($customfieldrecords as $customfieldrecord) {
+            foreach ($profilefields as $profilefield) {
+                if ($profilefield === $customfieldrecord->shortname) {
+                    $profilefieldselected = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$profilefieldselected && !(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
+            \core\notification::warning(
+                get_string('no_profile_field_selected', 'enrol_attributes', $CFG->wwwroot . '/user/profile/index.php')
+            );
+        }
+
         $customfields = [];
         foreach ($customfieldrecords as $customfieldrecord) {
             $customfields[$customfieldrecord->shortname] = $customfieldrecord->name;
@@ -58,10 +75,9 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configmultiselect('enrol_attributes/profilefields',
                 get_string('profilefields', 'enrol_attributes'), get_string('profilefields_desc', 'enrol_attributes'),
                 [], $customfields));
-    } else if (!defined('PHPUNIT_TEST')) {
+    } else if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
         // The warning needs to be given only if unit tests are not running.
         // Otherwise some core tests might fail.
-        $url = new moodle_url('/user/profile/index.php');
         \core\notification::warning(get_string('no_custom_field', 'enrol_attributes',$CFG->wwwroot . '/user/profile/index.php'));
     }
 
