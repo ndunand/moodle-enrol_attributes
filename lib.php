@@ -188,7 +188,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 mtrace('+', '');
             }
 
-            $enroldetails = json_decode($enrol_attributes_record->customtext1);
+            $enroldetails = json_decode($enrol_attributes_record->customtext1 ?? '');
             if (isset($enroldetails->rules)) {
                 $rules = $enroldetails->rules;
             } else {
