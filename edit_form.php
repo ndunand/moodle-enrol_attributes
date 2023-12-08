@@ -81,6 +81,8 @@ class enrol_attributes_edit_form extends moodleform {
         ));
         $mform->addHelpButton('customtext1', 'attrsyntax', 'enrol_attributes');
 
+        $mform->addElement('html', '<div class="alert alert-warning alert-block fade in" role="alert" data-aria-autofocus="true">' . get_string('listitem_description', 'enrol_attributes') . '</div>');
+
         $whenexpiredoptions = [
                 ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING => get_string('whenexpireddonothing', 'enrol_attributes'),
                 ENROL_ATTRIBUTES_WHENEXPIREDREMOVE => get_string('whenexpiredremove', 'enrol_attributes'),

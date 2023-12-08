@@ -110,7 +110,7 @@ elseif ($data = $mform->get_data()) {
  */
 function getRulesWithGroups($data){
     $rules = json_decode($data->customtext1, true, 512, JSON_THROW_ON_ERROR);
-    $rules['groups'] = $data->groupselect;
+    $rules['groups'] = $data->groupselect ?? null;
     return json_encode($rules, JSON_THROW_ON_ERROR);
 }
 
