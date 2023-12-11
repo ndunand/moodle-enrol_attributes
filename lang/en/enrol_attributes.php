@@ -64,3 +64,4 @@ $string['group'] = 'Group assignement';
 $string['group_help'] = 'You can assign none or multiples groups';
 $string['no_custom_field'] = 'There seems to be no custom field. Head to <a href="{$a}" target="_blank">user settings</a> to add one.';
 $string['no_profile_field_selected'] = 'No profile field has been selected in the enrol_attributes plugin settings.';
+$string['listitem_description'] = 'The "equals" operator checks for strict equality. The "listitem" operator allows to check if a value is in a list of values. The list of values is a semicolon separated list of values. The listitem operator is case sensitive.';

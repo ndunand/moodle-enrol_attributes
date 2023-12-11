@@ -30,9 +30,14 @@
         },
         paramList:    M.enrol_attributes.paramList,
         operatorList: [
-            {label: " = ", value: "=="},
-//             {label: "=/=", value: "!="},
-//             {label: "contains", value: "contains"},
+            {label: " = ", value: "="},
+            {label: " != ", value: "!="},
+            {label: " < ", value: "<"},
+            {label: " > ", value: ">"},
+            {label: " <= ", value: "<="},
+            {label: " >= ", value: ">="},
+            {label: " contains ", value: "contains"},
+            {label: " list item ", value: "listitem"},
         ]
     };
 
@@ -206,12 +211,12 @@
                     params:         $.booleanEditor.paramList,
                     selected_value: config.param
                 }).addClass("comp-param"))
-                .append($('<span>').addClass("comp-op").text('='))
-                //                .append( makeSelectList({                                    // The comparison operator
-                //                    name: 'comparison-operator',
-                //                    params: $.booleanEditor.operatorList,
-                //                    selected_value: config.comp_op
-                //                }).addClass("comp-op"))
+                //append dropdown with different comparison operators
+                .append(makeSelectList({
+                   name: 'comparison-operator',
+                   params: $.booleanEditor.operatorList,
+                   selected_value: config.comp_op
+               }).addClass("comp-op"))
                 .append($('<input type="text" name="value" value="' + config.value + '"/>')
                     .change(function () {
                         changed(this)

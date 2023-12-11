@@ -324,11 +324,35 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $join_id++;
                 $data = 'd' . $join_id . '.data';
                 $select .= ' RIGHT JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id AND d' . $join_id . '.fieldid = ' . $customkey;
-                $where .= ' (' . $DB->sql_compare_text($data) . ' = ' . $DB->sql_compare_text('?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
-                                '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data),
-                                '?') . ' OR ' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
-                array_push($params, $rule->value, '%;' . $rule->value, $rule->value . ';%',
-                        '%;' . $rule->value . ';%');
+
+                if (isset($rule->comp_op) && $rule->comp_op === 'contains') {
+                    $where .= ' (' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
+                    $params[] = '%' . $rule->value . '%';
+                } else if (isset($rule->comp_op) && $rule->comp_op !== 'listitem') {
+                        $where .= ' (' . $DB->sql_compare_text($data) . ' ' . strtoupper($rule->comp_op) . ' ' . $DB->sql_compare_text('?') . ')';
+                        $params[] = $rule->value;
+                } else {
+                    $where .= ' (' . $DB->sql_compare_text($data) . ' = ' . $DB->sql_compare_text(
+                            '?'
+                        ) . ' OR ' . $DB->sql_like(
+                            $DB->sql_compare_text($data),
+                            '?'
+                        ) . ' OR ' . $DB->sql_like(
+                            $DB->sql_compare_text($data),
+                            '?'
+                        ) . ' OR ' . $DB->sql_like(
+                            $DB->sql_compare_text($data),
+                            '?')
+                        . ')';
+
+                    array_push(
+                        $params,
+                        $rule->value,
+                        '%;' . $rule->value,
+                        $rule->value . ';%',
+                        '%;' . $rule->value . ';%'
+                    );
+                }
             }
         }
         $where = preg_replace('/^1=1 AND ?/', '', $where);
