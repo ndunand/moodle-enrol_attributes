@@ -237,7 +237,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                     $recovergrades = false; // do not try to recover grades if user is already enrolled
                 }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
-                        $enrol_attributes_record->roleid, 0, 0, ENROL_USER_ACTIVE, $recovergrades);
+                        $enrol_attributes_record->roleid, 0, 0, null, $recovergrades);
                 $nbenrolled++;
                 // Start modification
 
@@ -498,6 +498,18 @@ class enrol_attributes_plugin extends enrol_plugin {
         }
 
         return $icons;
+    }
+
+   /**
+    * Does this plugin allow manual changes in user_enrolments table?
+    *
+    * All plugins allowing this must implement 'enrol/xxx:manage' capability
+    *
+    * @param stdClass $instance course enrol instance
+    * @return bool - true means it is possible to change enrol period and status in user_enrolments table
+    */
+    public function allow_manage(stdClass $instance) {
+        return true;
     }
 
     /**
