@@ -323,7 +323,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                 // custom user field actually exists
                 $join_id++;
                 $data = 'd' . $join_id . '.data';
-                $select .= ' RIGHT JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id AND d' . $join_id . '.fieldid = ' . $customkey;
+                $select .= ' INNER JOIN {user_info_data} d' . $join_id . ' ON d' . $join_id . '.userid = u.id AND d' . $join_id . '.fieldid = ' . $customkey;
 
                 if (isset($rule->comp_op) && $rule->comp_op === 'contains') {
                     $where .= ' (' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
