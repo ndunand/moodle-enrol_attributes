@@ -93,7 +93,7 @@ elseif ($data = $mform->get_data()) {
         $fields = array(
                 'name'        => $data->name,
                 'roleid'      => $data->roleid,
-                'customint1'  => isset($data->customint1),
+                'customint1'  => isset($data->customint1) ? ($data->customint1) : 0,
                 'customtext1' => getRulesWithGroups($data)
         );
         $id = $plugin->add_instance($course, $fields);
