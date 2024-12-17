@@ -33,6 +33,8 @@ require_once $CFG->dirroot.'/group/lib.php';
  */
 class enrol_attributes_plugin extends enrol_plugin {
     /**
+     * @param \core\event\user_loggedin $event
+     * @return true|void
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -79,6 +81,9 @@ class enrol_attributes_plugin extends enrol_plugin {
     }
 
     /**
+     * @param $event
+     * @param $instanceid
+     * @return int|void
      * @throws \coding_exception
      * @throws \dml_exception
      */

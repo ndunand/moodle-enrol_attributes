@@ -104,7 +104,7 @@ elseif ($data = $mform->get_data()) {
 
 /**
  * Adds groups to the rules object
- * @param $data object
+ * @param stdClass $data Object containing the form data
  * @return false|string
  * @throws \JsonException
  */
