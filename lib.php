@@ -132,7 +132,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         foreach ($possible_unenrolments as $id => $user_enrolment) {
             $nbpossunenrol++;
             // we only want output if runnning within the scheduled task
-            if (!$event && !$instanceid && $nbpossunenrol % 1000 === 0 && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
+            if (!$event && !$instanceid && $nbpossunenrol % 1000 === 0 && isset($_SERVER['argv'][0]) && is_string($_SERVER['argv'][0]) && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
                 mtrace('-', '');
             }
 
@@ -183,7 +183,7 @@ class enrol_attributes_plugin extends enrol_plugin {
         // are we to enrol anywhere?
         foreach ($enrol_attributes_records as $enrol_attributes_record) {
             $nbpossenrol++;
-            if (!$event && !$instanceid && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
+            if (!$event && !$instanceid && isset($_SERVER['argv'][0]) && is_string($_SERVER['argv'][0]) && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
                 // we only want output if runnning within the scheduled task
                 mtrace('+', '');
             }
@@ -249,7 +249,7 @@ class enrol_attributes_plugin extends enrol_plugin {
             }
         }
 
-        if (!$event && !$instanceid && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
+        if (!$event && !$instanceid && isset($_SERVER['argv'][0]) && is_string($_SERVER['argv'][0]) && strpos($_SERVER['argv'][0], 'phpunit') === FALSE) {
             // we only want output if runnning within the scheduled task
             mtrace("\n" . 'enrol_attributes : ' . $nbdbqueries . ' DB queries.');
             mtrace('enrol_attributes : ' . $nbcachequeries . ' cache queries.');
