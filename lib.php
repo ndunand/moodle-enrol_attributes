@@ -81,8 +81,8 @@ class enrol_attributes_plugin extends enrol_plugin {
     }
 
     /**
-     * @param $event
-     * @param $instanceid
+     * @param \core\event\user_loggedin|null $event
+     * @param int|null $instanceid
      * @return int|void
      * @throws \coding_exception
      * @throws \dml_exception
