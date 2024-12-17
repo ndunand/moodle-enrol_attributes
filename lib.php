@@ -17,7 +17,7 @@
 /**
  * @package    enrol_attributes
  * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2018 Université de Lausanne (@link http://www.unil.ch}
+ * @copyright  2012-2018 Université de Lausanne {@link http://www.unil.ch}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,6 +33,8 @@ require_once $CFG->dirroot.'/group/lib.php';
  */
 class enrol_attributes_plugin extends enrol_plugin {
     /**
+     * @param \core\event\user_loggedin $event
+     * @return true|void
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -79,6 +81,9 @@ class enrol_attributes_plugin extends enrol_plugin {
     }
 
     /**
+     * @param \core\event\user_loggedin|null $event
+     * @param int|null $instanceid
+     * @return int|void
      * @throws \coding_exception
      * @throws \dml_exception
      */

@@ -17,7 +17,7 @@
 /**
  * @package    enrol_attributes
  * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2015 Université de Lausanne (@link http://www.unil.ch}
+ * @copyright  2012-2015 Université de Lausanne {@link http://www.unil.ch}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -104,7 +104,7 @@ elseif ($data = $mform->get_data()) {
 
 /**
  * Adds groups to the rules object
- * @param $data
+ * @param stdClass $data Object containing the form data
  * @return false|string
  * @throws \JsonException
  */
