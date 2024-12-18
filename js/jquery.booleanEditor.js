@@ -215,7 +215,8 @@
                 .append(makeSelectList({
                    name: 'comparison-operator',
                    params: $.booleanEditor.operatorList,
-                   selected_value: config.comp_op
+                   selected_value: config.comp_op || 'listitem'
+
                }).addClass("comp-op"))
                 .append($('<input type="text" name="value" value="' + config.value + '"/>')
                     .change(function () {
