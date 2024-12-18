@@ -17,15 +17,15 @@
 /**
  * @package    enrol_attributes
  * @author     Nicolas Dunand <Nicolas.Dunand@unil.ch>
- * @copyright  2012-2018 Université de Lausanne {@link http://www.unil.ch}
+ * @copyright  2012-2024 Université de Lausanne {@link http://www.unil.ch}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024010800;
+$plugin->version = 2024121800;
 $plugin->requires = 2022112800; // Moodle 4.1
 $plugin->component = 'enrol_attributes';
-$plugin->release = '2.13 for Moodle 4.1-4.3 (build 2024010800)';
+$plugin->release = '2.14 for Moodle 4.1-4.5 (build 2024121800)';
 $plugin->maturity = MATURITY_STABLE;
 
