@@ -61,7 +61,7 @@ if ($ADMIN->fulltree) {
             }
         }
 
-        if (!$profilefieldselected && !(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
+        if (!$profilefieldselected && !(defined('PHPUNIT_TEST') && PHPUNIT_TEST) && enrol_is_enabled('attributes')) {
             \core\notification::warning(
                 get_string('no_profile_field_selected', 'enrol_attributes', $CFG->wwwroot . '/user/profile/index.php')
             );
