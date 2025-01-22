@@ -32,11 +32,110 @@ require_once $CFG->dirroot.'/group/lib.php';
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_attributes_plugin extends enrol_plugin {
+
     /**
+     * Handle profile field updates
+     * @param \core\event\base $event
+     * @return void
+     */
+    public static function handle_profile_update(\core\event\base $event) {
+        global $DB;
+        
+        // Obtenemos el ID del usuario afectado
+        $userid = $event->relateduserid ?? $event->userid;
+        if (!$userid) {
+            return; // No hay usuario para procesar
+        }
+
+        // Invalidar caché para asegurar datos frescos
+        $cache = cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+        
+        // Obtenemos todas las instancias de inscripción por atributos activas
+        $enrol_instances = $DB->get_records('enrol', array(
+            'enrol' => 'attributes',
+            'status' => 0
+        ));
+        
+        foreach ($enrol_instances as $instance) {
+            // Verificamos si el usuario está inscrito en este curso
+            $user_enrolment = $DB->get_record('user_enrolments', array(
+                'enrolid' => $instance->id,
+                'userid' => $userid,
+                'status' => ENROL_USER_ACTIVE
+            ));
+            
+            if (!$user_enrolment) {
+                continue; // Usuario no inscrito o ya suspendido/dado de baja
+            }
+            
+            // Verificamos si el usuario aún cumple con las condiciones
+            $arraysyntax = self::attrsyntax_toarray($instance->customtext1);
+            $arraysql = self::arraysyntax_tosql($arraysyntax);
+            
+            $select = 'SELECT DISTINCT u.id FROM {user} u';
+            $where = ' WHERE u.id = ? AND u.deleted = 0 AND ';
+            
+            $sql = $select . $arraysql['select'] . $where . $arraysql['where'];
+            $params = array_merge(array($userid), $arraysql['params']);
+            
+            $still_valid = $DB->record_exists_sql($sql, $params);
+            
+            if (!$still_valid) {
+                // El usuario ya no cumple con las condiciones
+                $enrol_plugin = new self();
+                
+                switch ($instance->customint1) {
+                    case ENROL_ATTRIBUTES_WHENEXPIREDREMOVE:
+                        // Dar de baja al usuario y registrar el evento
+                        $enrol_plugin->unenrol_user($instance, $userid);
+                        
+                        // Trigger event
+                        $context = context_course::instance($instance->courseid);
+                        $event = \core\event\user_enrolment_deleted::create(array(
+                            'objectid' => $user_enrolment->id,
+                            'courseid' => $instance->courseid,
+                            'context' => $context,
+                            'relateduserid' => $userid,
+                            'other' => array('enrol' => 'attributes')
+                        ));
+                        $event->trigger();
+                        break;
+                        
+                    case ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND:
+                        // Suspender al usuario
+                        $enrol_plugin->update_user_enrol($instance, $userid, ENROL_USER_SUSPENDED);
+                        
+                        // Trigger event
+                        $context = context_course::instance($instance->courseid);
+                        $event = \core\event\user_enrolment_updated::create(array(
+                            'objectid' => $user_enrolment->id,
+                            'courseid' => $instance->courseid,
+                            'context' => $context,
+                            'relateduserid' => $userid,
+                            'other' => array(
+                                'enrol' => 'attributes',
+                                'status' => ENROL_USER_SUSPENDED
+                            )
+                        ));
+                        $event->trigger();
+                        break;
+                }
+                
+                // Remover usuario de grupos si es necesario
+                if ($groups = $DB->get_records('groups', array('courseid' => $instance->courseid))) {
+                    foreach ($groups as $group) {
+                        groups_remove_member($group->id, $userid);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process login event
      * @param \core\event\user_loggedin $event
      * @return true|void
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
     public static function process_login(\core\event\user_loggedin $event) {
         global $CFG, $DB;
@@ -84,8 +183,6 @@ class enrol_attributes_plugin extends enrol_plugin {
      * @param \core\event\user_loggedin|null $event
      * @param int|null $instanceid
      * @return int|void
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
     public static function process_enrolments($event = null, $instanceid = null) {
         global $DB;
@@ -244,8 +341,8 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
                         $enrol_attributes_record->roleid, 0, 0, null, $recovergrades);
                 $nbenrolled++;
+                
                 // Start modification
-
                 $groups = json_decode($enrol_attributes_record->customtext1, true)['groups'] ?? [];
                 foreach ($groups as $groupid) {
                     groups_add_member($groupid, $user->id);
@@ -472,10 +569,6 @@ class enrol_attributes_plugin extends enrol_plugin {
         return has_capability('enrol/attributes:config', $context);
     }
 
-    /*
-     *
-     */
-
     /**
      * Returns edit icons for the page with list of instances
      *
@@ -542,6 +635,4 @@ class enrol_attributes_plugin extends enrol_plugin {
             $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);
         }
     }
-
 }
-
