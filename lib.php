@@ -41,24 +41,24 @@ class enrol_attributes_plugin extends enrol_plugin {
     public static function handle_profile_update(\core\event\base $event) {
         global $DB;
         
-        // Obtenemos el ID del usuario afectado
+        // Get the affected user's ID
         $userid = $event->relateduserid ?? $event->userid;
         if (!$userid) {
-            return; // No hay usuario para procesar
+            return; // No user to process
         }
 
-        // Invalidar caché para asegurar datos frescos
+        // Invalidate cache to ensure fresh data
         $cache = cache::make('enrol_attributes', 'dbquerycache');
         $cache->purge();
         
-        // Obtenemos todas las instancias de inscripción por atributos activas
+        // Get all active attribute enrolment instances
         $enrol_instances = $DB->get_records('enrol', array(
             'enrol' => 'attributes',
             'status' => 0
         ));
         
         foreach ($enrol_instances as $instance) {
-            // Verificamos si el usuario está inscrito en este curso
+            // Check if the user is enrolled in this course
             $user_enrolment = $DB->get_record('user_enrolments', array(
                 'enrolid' => $instance->id,
                 'userid' => $userid,
@@ -66,10 +66,10 @@ class enrol_attributes_plugin extends enrol_plugin {
             ));
             
             if (!$user_enrolment) {
-                continue; // Usuario no inscrito o ya suspendido/dado de baja
+                continue; // User not enrolled or already suspended/unenrolled
             }
             
-            // Verificamos si el usuario aún cumple con las condiciones
+            // Check if the user still meets the conditions
             $arraysyntax = self::attrsyntax_toarray($instance->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
             
@@ -82,12 +82,12 @@ class enrol_attributes_plugin extends enrol_plugin {
             $still_valid = $DB->record_exists_sql($sql, $params);
             
             if (!$still_valid) {
-                // El usuario ya no cumple con las condiciones
+                // The user no longer meets the conditions
                 $enrol_plugin = new self();
                 
                 switch ($instance->customint1) {
                     case ENROL_ATTRIBUTES_WHENEXPIREDREMOVE:
-                        // Dar de baja al usuario y registrar el evento
+                        // Unenrol the user and log the event
                         $enrol_plugin->unenrol_user($instance, $userid);
                         
                         // Trigger event
@@ -103,7 +103,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                         break;
                         
                     case ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND:
-                        // Suspender al usuario
+                        // Suspend the user
                         $enrol_plugin->update_user_enrol($instance, $userid, ENROL_USER_SUSPENDED);
                         
                         // Trigger event
@@ -122,7 +122,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                         break;
                 }
                 
-                // Remover usuario de grupos si es necesario
+                // Remove user from groups if necessary
                 if ($groups = $DB->get_records('groups', array('courseid' => $instance->courseid))) {
                     foreach ($groups as $group) {
                         groups_remove_member($group->id, $userid);
