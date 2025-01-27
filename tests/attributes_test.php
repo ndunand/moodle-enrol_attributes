@@ -111,6 +111,93 @@ class attributes_test extends advanced_testcase
         self::assertArrayNotHasKey($this->user->id, groups_get_members($this->group->id));
     }
 
+    function testWhenExpiredRemoveBehavior()
+    {
+        global $DB;
+        $this->resetAfterTest();
+        
+        // Update profile field to cause expiration
+        $user_info_data = (object)[
+            'userid' => $this->user->id,
+            'fieldid' => $this->field->id,
+            'data' => 'changed_value'
+        ];
+        $DB->update_record('user_info_data', $user_info_data);
+
+        // Process enrolments to apply expiration
+        enrol_attributes_plugin::process_enrolments();
+
+        self::assertFalse(is_enrolled(context_course::instance($this->course->id), $this->user));
+    }
+
+    function testWhenExpiredSuspendBehavior()
+    {
+        global $DB;
+        $this->resetAfterTest();
+
+        /* Creating a new enrolment with suspend behavior */
+        $enrol = (object)[
+            'enrol' => 'attributes',
+            'courseid' => $this->course->id,
+            'customint1' => ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND,
+            'customtext1' => '{"rules":[{"param":"testprofilefield","value":"test"}],"groups":[' . $this->group->id . ']}'
+        ];
+        $instanceid = $DB->insert_record('enrol', $enrol);
+
+        // Update profile field to cause expiration
+        $user_info_data = (object)[
+            'userid' => $this->user->id,
+            'fieldid' => $this->field->id,
+            'data' => 'changed_value'
+        ];
+        $DB->update_record('user_info_data', $user_info_data);
+
+        // Process enrolments to apply expiration
+        enrol_attributes_plugin::process_enrolments();
+
+        // Get current enrolment status
+        $userenrolment = $DB->get_record('user_enrolments', array(
+            'enrolid' => $instanceid,
+            'userid' => $this->user->id
+        ));
+
+        self::assertEquals(ENROL_USER_SUSPENDED, $userenrolment->status);
+    }
+
+    function testWhenExpiredDoNothingBehavior()
+    {
+        global $DB;
+        $this->resetAfterTest();
+
+        /* Creating a new enrolment with do nothing behavior */
+        $enrol = (object)[
+            'enrol' => 'attributes',
+            'courseid' => $this->course->id,
+            'customint1' => ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING,
+            'customtext1' => '{"rules":[{"param":"testprofilefield","value":"test"}],"groups":[' . $this->group->id . ']}'
+        ];
+        $instanceid = $DB->insert_record('enrol', $enrol);
+
+        // Update profile field to cause expiration
+        $user_info_data = (object)[
+            'userid' => $this->user->id,
+            'fieldid' => $this->field->id,
+            'data' => 'changed_value'
+        ];
+        $DB->update_record('user_info_data', $user_info_data);
+
+        // Process enrolments to apply expiration
+        enrol_attributes_plugin::process_enrolments();
+
+        // Get current enrolment status
+        $userenrolment = $DB->get_record('user_enrolments', array(
+            'enrolid' => $instanceid,
+            'userid' => $this->user->id
+        ));
+
+        self::assertEquals(ENROL_USER_ACTIVE, $userenrolment->status);
+    }
+
     function unenrolUser()
     {
         global $DB;
@@ -121,4 +208,3 @@ class attributes_test extends advanced_testcase
         enrol_attributes_plugin::process_enrolments();
     }
 }
-
