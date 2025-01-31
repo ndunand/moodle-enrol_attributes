@@ -33,6 +33,8 @@ require_once $CFG->dirroot.'/group/lib.php';
  */
 class enrol_attributes_plugin extends enrol_plugin {
 
+    protected $name;
+
     /**
      * Handle profile field updates
      * @param \core\event\base $event
