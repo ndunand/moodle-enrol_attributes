@@ -40,12 +40,7 @@ class enrol_attributes_edit_form extends moodleform {
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
         $mform->setType('name', PARAM_TEXT);
 
-        if ($instance->id) {
-            $roles = get_default_enrol_roles($context, $instance->roleid);
-        }
-        else {
-            $roles = get_default_enrol_roles($context, $plugin->get_config('default_roleid'));
-        }
+        $roles = get_assignable_roles($context);
         $mform->addElement('select', 'roleid', get_string('role'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('default_roleid'));
 
