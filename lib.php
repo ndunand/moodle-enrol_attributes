@@ -100,6 +100,13 @@ class enrol_attributes_plugin extends enrol_plugin {
                             'other' => array('enrol' => 'attributes')
                         ));
                         $event->trigger();
+                        
+                        // Remove user from groups if they are completely unenrolled
+                        if ($groups = $DB->get_records('groups', array('courseid' => $instance->courseid))) {
+                            foreach ($groups as $group) {
+                                groups_remove_member($group->id, $userid);
+                            }
+                        }
                         break;
                         
                     case ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND:
@@ -119,14 +126,9 @@ class enrol_attributes_plugin extends enrol_plugin {
                             )
                         ));
                         $event->trigger();
+                        
+                        // No need to remove from groups when only suspended
                         break;
-                }
-                
-                // Remove user from groups if necessary
-                if ($groups = $DB->get_records('groups', array('courseid' => $instance->courseid))) {
-                    foreach ($groups as $group) {
-                        groups_remove_member($group->id, $userid);
-                    }
                 }
             }
         }
@@ -274,9 +276,17 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $enrol_attributes_instance = new enrol_attributes_plugin();
                 if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDREMOVE) {
                     $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$user_enrolment->userid);
+                    
+                    // Remove user from groups only when completely unenrolled
+                    if ($groups = $DB->get_records('groups', array('courseid' => $unenrol_attributes_record->courseid))) {
+                        foreach ($groups as $group) {
+                            groups_remove_member($group->id, $user_enrolment->userid);
+                        }
+                    }
                 } elseif ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND) {
                     $enrol_attributes_instance->update_user_enrol($unenrol_attributes_record, (int)$user_enrolment->userid,
                             ENROL_USER_SUSPENDED);
+                    // No need to remove from groups when only suspended
                 }
                 $nbunenrolled++;
             }
@@ -338,8 +348,9 @@ class enrol_attributes_plugin extends enrol_plugin {
                 if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
                     $recovergrades = false; // do not try to recover grades if user is already enrolled
                 }
+                // Specify ENROL_USER_ACTIVE to ensure suspended users are reactivated
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
-                        $enrol_attributes_record->roleid, 0, 0, null, $recovergrades);
+                        $enrol_attributes_record->roleid, 0, 0, ENROL_USER_ACTIVE, $recovergrades);
                 $nbenrolled++;
                 
                 // Start modification
