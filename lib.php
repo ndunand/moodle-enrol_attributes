@@ -67,10 +67,6 @@ class enrol_attributes_plugin extends enrol_plugin {
                 'status' => ENROL_USER_ACTIVE
             ));
             
-            if (!$user_enrolment) {
-                continue; // User not enrolled or already suspended/unenrolled
-            }
-            
             // Check if the user still meets the conditions
             $arraysyntax = self::attrsyntax_toarray($instance->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
@@ -82,8 +78,20 @@ class enrol_attributes_plugin extends enrol_plugin {
             $params = array_merge(array($userid), $arraysql['params']);
             
             $still_valid = $DB->record_exists_sql($sql, $params);
+
+            if (!$user_enrolment && $still_valid) {
+                // The user meets the conditions
+                $enrol_plugin = new self();
+                
+                $enrol_plugin->enrol_user($instance, $userid,
+                        $instance->roleid, 0, 0, ENROL_USER_ACTIVE);
+                $groups = json_decode($instance->customtext1, true)['groups'] ?? [];
+                foreach ($groups as $groupid) {
+                    groups_add_member($groupid, $userid);
+                }
+            }
             
-            if (!$still_valid) {
+            if ($user_enrolment && !$still_valid) {
                 // The user no longer meets the conditions
                 $enrol_plugin = new self();
                 
@@ -341,7 +349,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                     $recovergrades = false; // do not try to recover grades if user is already enrolled
                 }
                 $enrol_attributes_instance->enrol_user($enrol_attributes_record, $user->id,
-                        $enrol_attributes_record->roleid, 0, 0, null, $recovergrades);
+                        $enrol_attributes_record->roleid, 0, 0, ENROL_USER_ACTIVE, $recovergrades);
                 $nbenrolled++;
                 
                 // Start modification
