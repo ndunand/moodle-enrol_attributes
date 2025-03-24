@@ -59,14 +59,14 @@ class enrol_attributes_plugin extends enrol_plugin {
         
         foreach ($enrol_instances as $instance) {
             // Check if the user is enrolled in this course
+            // CORRECCIÓN: Eliminar filtro de status para revisar todas las inscripciones, no solo las activas
             $user_enrolment = $DB->get_record('user_enrolments', array(
                 'enrolid' => $instance->id,
-                'userid' => $userid,
-                'status' => ENROL_USER_ACTIVE
+                'userid' => $userid
             ));
             
             if (!$user_enrolment) {
-                continue; // User not enrolled or already suspended/unenrolled
+                continue; // User not enrolled
             }
             
             // Check if the user still meets the conditions
@@ -101,7 +101,7 @@ class enrol_attributes_plugin extends enrol_plugin {
                         ));
                         $event->trigger();
                         
-                        // Remove user from groups if they are completely unenrolled
+                        // Remove user from groups only when completely unenrolled
                         if ($groups = $DB->get_records('groups', array('courseid' => $instance->courseid))) {
                             foreach ($groups as $group) {
                                 groups_remove_member($group->id, $userid);
