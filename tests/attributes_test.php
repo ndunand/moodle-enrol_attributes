@@ -116,12 +116,12 @@ class attributes_test extends advanced_testcase
         global $DB;
         $this->resetAfterTest();
         
-        // Update profile field to cause expiration
-        $user_info_data = (object)[
+        $user_info_data = $DB->get_record('user_info_data', (object)[
             'userid' => $this->user->id,
             'fieldid' => $this->field->id,
-            'data' => 'changed_value'
-        ];
+        ]);
+        // Update profile field to cause expiration
+        $user_info_data->data = 'changed_value';
         $DB->update_record('user_info_data', $user_info_data);
 
         // Process enrolments to apply expiration
@@ -144,12 +144,12 @@ class attributes_test extends advanced_testcase
         ];
         $instanceid = $DB->insert_record('enrol', $enrol);
 
-        // Update profile field to cause expiration
-        $user_info_data = (object)[
+        $user_info_data = $DB->get_record('user_info_data', (object)[
             'userid' => $this->user->id,
             'fieldid' => $this->field->id,
-            'data' => 'changed_value'
-        ];
+        ]);
+        // Update profile field to cause expiration
+        $user_info_data->data = 'changed_value';
         $DB->update_record('user_info_data', $user_info_data);
 
         // Process enrolments to apply expiration
@@ -178,12 +178,12 @@ class attributes_test extends advanced_testcase
         ];
         $instanceid = $DB->insert_record('enrol', $enrol);
 
-        // Update profile field to cause expiration
-        $user_info_data = (object)[
+        $user_info_data = $DB->get_record('user_info_data', (object)[
             'userid' => $this->user->id,
             'fieldid' => $this->field->id,
-            'data' => 'changed_value'
-        ];
+        ]);
+        // Update profile field to cause expiration
+        $user_info_data->data = 'changed_value';
         $DB->update_record('user_info_data', $user_info_data);
 
         // Process enrolments to apply expiration
