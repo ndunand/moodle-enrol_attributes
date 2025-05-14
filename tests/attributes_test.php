@@ -113,13 +113,16 @@ class attributes_test extends advanced_testcase
 
     function testWhenExpiredRemoveBehavior()
     {
+        $cache = \cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+
         global $DB;
         $this->resetAfterTest();
-        
+
         $user_info_data = $DB->get_record('user_info_data', [
             'userid' => $this->user->id,
             'fieldid' => $this->field->id,
-        ]);
+        ], '*', MUST_EXIST);
         // Update profile field to cause expiration
         $user_info_data = (object)$user_info_data;
         $user_info_data->data = 'changed_value';
@@ -133,22 +136,24 @@ class attributes_test extends advanced_testcase
 
     function testWhenExpiredSuspendBehavior()
     {
+        $cache = \cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+
         global $DB;
         $this->resetAfterTest();
 
-        /* Creating a new enrolment with suspend behavior */
-        $enrol = (object)[
-            'enrol' => 'attributes',
-            'courseid' => $this->course->id,
-            'customint1' => ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND,
-            'customtext1' => '{"rules":[{"param":"testprofilefield","value":"test"}],"groups":[' . $this->group->id . ']}'
-        ];
-        $instanceid = $DB->insert_record('enrol', $enrol);
+        /* Set the enrolment method to suspend behavior */
+        $enrol = $DB->get_record('enrol', [
+                'enrol' => 'attributes',
+                'courseid' => $this->course->id], '*', MUST_EXIST);
+        $enrol = (object)$enrol;
+        $enrol->customint1 = ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND;
+        $DB->update_record('enrol', $enrol);
 
         $user_info_data = $DB->get_record('user_info_data', [
             'userid' => $this->user->id,
             'fieldid' => $this->field->id,
-        ]);
+        ], '*', MUST_EXIST);
         // Update profile field to cause expiration
         $user_info_data = (object)$user_info_data;
         $user_info_data->data = 'changed_value';
@@ -159,31 +164,33 @@ class attributes_test extends advanced_testcase
 
         // Get current enrolment status
         $userenrolment = $DB->get_record('user_enrolments', array(
-            'enrolid' => $instanceid,
+            'enrolid' => $enrol->id,
             'userid' => $this->user->id
-        ));
+        ), '*', MUST_EXIST);
 
         self::assertEquals(ENROL_USER_SUSPENDED, $userenrolment->status);
     }
 
     function testWhenExpiredDoNothingBehavior()
     {
+        $cache = \cache::make('enrol_attributes', 'dbquerycache');
+        $cache->purge();
+
         global $DB;
         $this->resetAfterTest();
 
-        /* Creating a new enrolment with do nothing behavior */
-        $enrol = (object)[
-            'enrol' => 'attributes',
-            'courseid' => $this->course->id,
-            'customint1' => ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING,
-            'customtext1' => '{"rules":[{"param":"testprofilefield","value":"test"}],"groups":[' . $this->group->id . ']}'
-        ];
-        $instanceid = $DB->insert_record('enrol', $enrol);
+        /* Set the enrolment method to do nothing behavior */
+        $enrol = $DB->get_record('enrol', [
+                'enrol' => 'attributes',
+                'courseid' => $this->course->id], '*', MUST_EXIST);
+        $enrol = (object)$enrol;
+        $enrol->customint1 = ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING;
+        $DB->update_record('enrol', $enrol);
 
         $user_info_data = $DB->get_record('user_info_data', [
             'userid' => $this->user->id,
             'fieldid' => $this->field->id,
-        ]);
+        ], '*', MUST_EXIST);
         // Update profile field to cause expiration
         $user_info_data = (object)$user_info_data;
         $user_info_data->data = 'changed_value';
@@ -194,9 +201,9 @@ class attributes_test extends advanced_testcase
 
         // Get current enrolment status
         $userenrolment = $DB->get_record('user_enrolments', array(
-            'enrolid' => $instanceid,
+            'enrolid' => $enrol->id,
             'userid' => $this->user->id
-        ));
+        ), '*', MUST_EXIST);
 
         self::assertEquals(ENROL_USER_ACTIVE, $userenrolment->status);
     }
