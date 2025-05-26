@@ -37,6 +37,7 @@
             {label: " <= ", value: "<="},
             {label: " >= ", value: ">="},
             {label: " contains ", value: "contains"},
+            {label: " does not contain ", value: "notcontains"},
             {label: " list item ", value: "listitem"},
         ]
     };
