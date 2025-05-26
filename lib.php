@@ -443,6 +443,9 @@ class enrol_attributes_plugin extends enrol_plugin {
                 if (isset($rule->comp_op) && $rule->comp_op === 'contains') {
                     $where .= ' (' . $DB->sql_like($DB->sql_compare_text($data), '?') . ')';
                     $params[] = '%' . $rule->value . '%';
+                } else if (isset($rule->comp_op) && $rule->comp_op === 'notcontains') {
+                    $where .= ' (' . $DB->sql_compare_text($data) . ' NOT LIKE ' . $DB->sql_compare_text('?') . ')';
+                    $params[] = '%' . $rule->value . '%';
                 } else if (isset($rule->comp_op) && $rule->comp_op !== 'listitem') {
                         $where .= ' (' . $DB->sql_compare_text($data) . ' ' . strtoupper($rule->comp_op) . ' ' . $DB->sql_compare_text('?') . ')';
                         $params[] = $rule->value;
