@@ -37,8 +37,15 @@ $context = context_course::instance($course->id);
 require_login($course);
 require_capability('enrol/attributes:config', $context);
 
-if (enrol_attributes_plugin::purge_instance($instanceid)) {
-    echo json_encode(get_string('ajax-okpurged', 'enrol_attributes'));
+$enrolrecord = $DB->get_record('enrol', ['id' => $instanceid], '*', MUST_EXIST);
+
+enrol_attributes_plugin::validate_instance_course($enrolrecord, $courseid);
+
+$task = new \enrol_attributes\task\purge_task();
+$task->set_custom_data(['instanceid' => (int)$instanceid]);
+
+if (\core\task\manager::queue_adhoc_task($task, true)) {
+    echo json_encode(get_string('ajax-okpurged-background', 'enrol_attributes'));
 }
 else {
     echo json_encode(get_string('ajax-error', 'enrol_attributes'));

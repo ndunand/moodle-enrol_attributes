@@ -17,5 +17,7 @@
 $string['group'] = 'Affectation aux groupes';
 $string['group_help'] = 'Vous pouvez affecter aucun ou plusieurs groupes';
 $string['no_custom_field'] = 'Aucun attribut n\'est défini. Cliquez <a href="{$a}" target="_blank">ici</a> pour en ajouter.';
+$string['ajax-okpurged-background'] = 'OK, purge en arrière-plan';
+$string['ajax-okforced-background'] = 'OK, inscription forcée en arrière-plan';
 
 

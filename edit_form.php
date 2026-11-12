@@ -45,7 +45,7 @@ class enrol_attributes_edit_form extends moodleform {
         $mform->setDefault('roleid', $plugin->get_config('default_roleid'));
 
         // Start modification
-        $courseid = required_param('courseid', PARAM_INT);
+        $courseid = $this->_customdata['courseid'];
         $groups = groups_get_all_groups($courseid);
 
         if (count($groups)) {
@@ -64,8 +64,7 @@ class enrol_attributes_edit_form extends moodleform {
             $recordgroups === [] ?: $groupselector->setSelected($recordgroups);
         }
         else {
-            $groupselector = $mform->addElement('static', 'groupselect', get_string('group', 'enrol_attributes'), html_writer::div(get_string('nogroups', 'group'), 'alert alert-info'));
-            $mform->addHelpButton('groupselect', 'group', 'enrol_attributes');
+            $mform->addElement('static', 'groupselect', get_string('group', 'enrol_attributes'), html_writer::div(get_string('nogroups', 'group'), 'alert alert-info'));
         }
 
 

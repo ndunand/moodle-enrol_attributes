@@ -86,52 +86,35 @@ class enrol_attributes_plugin extends enrol_plugin {
             if (!$still_valid) {
                 // The user no longer meets the conditions
                 $enrol_plugin = new self();
-                
+
                 switch ($instance->customint1) {
                     case ENROL_ATTRIBUTES_WHENEXPIREDREMOVE:
                         // Unenrol the user and log the event
                         $enrol_plugin->unenrol_user($instance, $userid);
-                        
-                        // Trigger event
-                        $context = context_course::instance($instance->courseid);
-                        $event = \core\event\user_enrolment_deleted::create(array(
-                            'objectid' => $user_enrolment->id,
-                            'courseid' => $instance->courseid,
-                            'context' => $context,
-                            'relateduserid' => $userid,
-                            'other' => array('enrol' => 'attributes')
-                        ));
-                        $event->trigger();
-                        
-                        // Remove user from groups only when completely unenrolled
-                        if ($groups = $DB->get_records('groups', array('courseid' => $instance->courseid))) {
-                            foreach ($groups as $group) {
-                                groups_remove_member($group->id, $userid);
-                            }
-                        }
+
+                        // B2: remove the user only from the groups configured on THIS
+                        // enrol instance (customtext1.groups), never from all course
+                        // groups. Other enrol instances may still legitimately want to
+                        // keep the user in their groups.
+                        $enrol_plugin->remove_user_from_instance_groups($instance, $userid);
                         break;
-                        
+
                     case ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND:
                         // Suspend the user
                         $enrol_plugin->update_user_enrol($instance, $userid, ENROL_USER_SUSPENDED);
-                        
-                        // Trigger event
-                        $context = context_course::instance($instance->courseid);
-                        $event = \core\event\user_enrolment_updated::create(array(
-                            'objectid' => $user_enrolment->id,
-                            'courseid' => $instance->courseid,
-                            'context' => $context,
-                            'relateduserid' => $userid,
-                            'other' => array(
-                                'enrol' => 'attributes',
-                                'status' => ENROL_USER_SUSPENDED
-                            )
-                        ));
-                        $event->trigger();
-                        
+
                         // No need to remove from groups when only suspended
                         break;
                 }
+            }
+            else if ($user_enrolment->status != ENROL_USER_ACTIVE) {
+                // B3: the user's enrolment is suspended (or expired) while the rule
+                // is still valid. Reactivate like the scheduled-task path does, so
+                // the event path and the cron path behave identically.
+                // (WHENEXPIREDDONOTHING instances never suspend, so there is nothing
+                // to reactivate for them.)
+                $enrol_plugin = new self();
+                $enrol_plugin->update_user_enrol($instance, $userid, ENROL_USER_ACTIVE);
             }
         }
     }
@@ -257,20 +240,24 @@ class enrol_attributes_plugin extends enrol_plugin {
             }
 
             $select = 'SELECT DISTINCT u.id FROM {user} u';
-            $where = ' WHERE u.id=' . $user_enrolment->userid . ' AND u.deleted=0 AND ';
+            $where = ' WHERE u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($unenrol_attributes_record->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
+            // B1: cache key must depend on the rule SQL only, never on the user id.
+            // A user-scoped key would cache per-user result sets which go stale
+            // once the profile data changes, leaving users unenrolled/enrolled wrongly.
             $dbquerycachekey = md5($select . serialize($arraysql) . $where);
             $users_cache = $cache->get($dbquerycachekey);
             if ($users_cache) {
-                $users = unserialize($users_cache);
+                // json_decode(..., true) preserves the id keys of the encoded array.
+                $users = json_decode($users_cache, true) ?? [];
                 $nbcachequeries++;
             }
             else {
                 $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
                         $arraysql['params']);
                 $nbdbqueries++;
-                $cache->set($dbquerycachekey, serialize($users));
+                $cache->set($dbquerycachekey, json_encode($users));
             }
 
             if (!array_key_exists($user_enrolment->userid, $users)) {
@@ -278,13 +265,14 @@ class enrol_attributes_plugin extends enrol_plugin {
                 $enrol_attributes_instance = new enrol_attributes_plugin();
                 if ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDREMOVE) {
                     $enrol_attributes_instance->unenrol_user($unenrol_attributes_record, (int)$user_enrolment->userid);
-                    
-                    // Remove user from groups only when completely unenrolled
-                    if ($groups = $DB->get_records('groups', array('courseid' => $unenrol_attributes_record->courseid))) {
-                        foreach ($groups as $group) {
-                            groups_remove_member($group->id, $user_enrolment->userid);
-                        }
-                    }
+
+                    // B2: remove the user only from the groups configured on THIS
+                    // enrol instance (customtext1.groups), never from all course
+                    // groups. Other enrol instances may still legitimately want to
+                    // keep the user in their groups.
+                    // (Core unenrol_user() already purges all course groups on the
+                    // user's last enrolment; this call is the safe no-op there.)
+                    $enrol_attributes_instance->remove_user_from_instance_groups($unenrol_attributes_record, $user_enrolment->userid);
                 } elseif ($unenrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDSUSPEND) {
                     $enrol_attributes_instance->update_user_enrol($unenrol_attributes_record, (int)$user_enrolment->userid,
                             ENROL_USER_SUSPENDED);
@@ -324,29 +312,50 @@ class enrol_attributes_plugin extends enrol_plugin {
             $select = 'SELECT DISTINCT u.id FROM {user} u';
             if ($event) { // called by an event, i.e. user login
                 $userid = (int)$event->userid;
-                $where = ' WHERE u.id=' . $userid;
             }
-            else { // called by scheduled task or by construct
-                $where = ' WHERE 1=1';
-            }
-            $where .= ' AND u.deleted=0 AND ';
             $arraysyntax = self::attrsyntax_toarray($enrol_attributes_record->customtext1);
             $arraysql = self::arraysyntax_tosql($arraysyntax);
-            $dbquerycachekey = md5($select . serialize($arraysql) . $where);
 
-            //TODO fix bug related to cache : users are not unenrolled
+            // B1: the cache key must be derived from the rule SQL only, without the
+            // per-login user filter. The user-scoped variant cached one user's result
+            // set under a user-specific key, so stale cached sets could keep
+            // unenrolments from ever happening (the 'users are not unenrolled' bug).
+            // We therefore cache the full rule result set and intersect it with the
+            // single user afterwards.
+            $dbquerycachekey = md5($select . serialize($arraysql));
             $users_cache = $cache->get($dbquerycachekey);
             if ($users_cache) {
-                $users = unserialize($users_cache);
+                // json_decode(..., true) preserves the id keys of the encoded array.
+                $users = json_decode($users_cache, true) ?? [];
                 $nbcachequeries++;
             } else {
-                $users = $DB->get_records_sql($select . $arraysql['select'] . $where . $arraysql['where'],
+                $users = $DB->get_records_sql($select . $arraysql['select'] . ' WHERE u.deleted=0 AND ' . $arraysql['where'],
                         $arraysql['params']);
                 $nbdbqueries++;
-                $cache->set($dbquerycachekey, serialize($users));
+                $cache->set($dbquerycachekey, json_encode($users));
+            }
+            if ($event) {
+                // Only the logging-in user is relevant when triggered by a login event.
+                $users = array_intersect_key($users, array($userid => true));
             }
             foreach ($users ?? [] as $user) {
+                // json_decode(..., true) returned plain arrays, enrol_user() expects objects.
+                if (!is_object($user)) {
+                    $user = (object)$user;
+                }
                 $recovergrades = null;
+                $ue = $DB->get_record('user_enrolments', array('enrolid' => $enrol_attributes_record->id, 'userid' => $user->id));
+                if ($ue && $ue->status != ENROL_USER_ACTIVE) {
+                    // B4: a suspended user must only be reactivated when the rule is
+                    // still valid. $users is the rule result set, so the user is
+                    // matched here; but WHENEXPIREDDONOTHING instances (customint1 == 0)
+                    // never unenrol/suspend anyone, so a suspension on those must have
+                    // a different cause (e.g. manual suspension) and must NOT be
+                    // silently undone by a rule sync.
+                    if ($enrol_attributes_record->customint1 == ENROL_ATTRIBUTES_WHENEXPIREDDONOTHING) {
+                        continue;
+                    }
+                }
                 if (is_enrolled(context_course::instance($enrol_attributes_record->courseid), $user)) {
                     $recovergrades = false; // do not try to recover grades if user is already enrolled
                 }
@@ -388,6 +397,28 @@ class enrol_attributes_plugin extends enrol_plugin {
         global $CFG;
         require_once("$CFG->dirroot/group/lib.php");
         groups_add_member($groupid, $userid);
+    }
+
+    /**
+     * Removes the user from the groups configured on the given enrol instance
+     * (customtext1.groups). This is instance-scoped by design: other enrol
+     * instances of the same course may legitimately want to keep the user in
+     * their groups (B2). Core unenrol_user() already purges all course groups
+     * when the user's last enrolment in the course goes away.
+     *
+     * @param stdClass $instance enrol instance record ({enrol} row)
+     * @param int      $userid
+     */
+    public function remove_user_from_instance_groups($instance, $userid) {
+        $groups = json_decode($instance->customtext1 ?? '', true)['groups'] ?? [];
+        if (!is_array($groups)) {
+            return;
+        }
+        foreach ($groups as $groupid) {
+            if (groups_is_member($groupid, $userid)) {
+                groups_remove_member($groupid, $userid);
+            }
+        }
     }
 
     public static function attrsyntax_toarray($attrsyntax) { // TODO : protected
@@ -491,32 +522,36 @@ class enrol_attributes_plugin extends enrol_plugin {
         );
     }
 
+    /**
+     * Validates that an enrolment instance belongs to the given course.
+     * Throws a moodle_exception if the instance does not belong to the course.
+     *
+     * @param stdClass $enrolrecord the enrol record (from the {enrol} table)
+     * @param int $courseid the course id the action was requested for
+     * @throws moodle_exception when the instance does not belong to the course
+     */
+    public static function validate_instance_course($enrolrecord, int $courseid): void {
+        if (!$enrolrecord || (int)$enrolrecord->courseid !== $courseid) {
+            throw new moodle_exception('invalidcourseid', 'error');
+        }
+    }
+
     public static function purge_instance($instanceid) {
         global $DB;
         $enrolplugininstance = new self();
 
         if($instanceid) {
             $enrol_attributes_record = $DB->get_record('enrol', ['id' => $instanceid]);
-            $enrolment_records = $DB->get_records('user_enrolments', ['enrolid'  => $enrol_attributes_record->id]);
+            $enrolment_records = $DB->get_recordset('user_enrolments', ['enrolid'  => $enrol_attributes_record->id]);
             foreach ($enrolment_records as $record) {
                 $enrolplugininstance->unenrol_user($enrol_attributes_record, $record->userid);
             }
+            $enrolment_records->close();
 
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Is it possible to delete enrol instance via standard UI?
-     *
-     * @param object $instance
-     *
-     * @return bool
-     */
-    public function instance_deleteable($instance) {
-        return true;
     }
 
     /**
@@ -546,6 +581,12 @@ class enrol_attributes_plugin extends enrol_plugin {
     /**
      * Restore instance and map settings.
      *
+     * Group ids stored in customtext1 are mapped to their newly restored
+     * counterparts via the restore 'group' mapping (populated by
+     * restore_groups_structure_step, which runs before the enrolments step).
+     * Groups that could not be mapped (e.g. groups were not included in the
+     * backup) are dropped and a debugging notice is emitted.
+     *
      * @param restore_enrolments_structure_step $step
      * @param stdClass                          $data
      * @param stdClass                          $course
@@ -555,6 +596,26 @@ class enrol_attributes_plugin extends enrol_plugin {
         if ($step->get_task()->get_target() !== backup::TARGET_NEW_COURSE) {
             return false;
         }
+
+        if (!empty($data->customtext1)) {
+            $details = json_decode($data->customtext1);
+            if (isset($details->rules)) {
+                // Map the configured group ids to their restored equivalents.
+                $groupids = [];
+                foreach ($details->groups ?? [] as $oldgroupid) {
+                    if ($newgroupid = $step->get_mappingid('group', $oldgroupid)) {
+                        $groupids[] = $newgroupid;
+                    } else {
+                        debugging('enrol_attributes: group id ' . $oldgroupid .
+                                ' for instance ' . $oldid . ' could not be mapped during course restore, dropping group assignment.',
+                                DEBUG_DEVELOPER);
+                    }
+                }
+                $details->groups = $groupids;
+                $data->customtext1 = json_encode($details);
+            }
+        }
+
         $instanceid = $this->add_instance($course, (array)$data);
         $step->set_mapping('enrol', $oldid, $instanceid);
     }

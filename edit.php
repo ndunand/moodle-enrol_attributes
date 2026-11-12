@@ -71,7 +71,8 @@ else {
 $mform = new enrol_attributes_edit_form(null, array(
         $instance,
         $plugin,
-        $context
+        $context,
+        'courseid' => $course->id
 ));
 
 if ($mform->is_cancelled()) {

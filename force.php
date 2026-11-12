@@ -37,17 +37,15 @@ $context = context_course::instance($course->id);
 require_login($course);
 require_capability('enrol/attributes:config', $context);
 
-if (!$courseid || !$instanceid) {
-    print_string('ajax-error', 'enrol_attributes');
-    exit;
-}
+$enrolrecord = $DB->get_record('enrol', ['id' => $instanceid], '*', MUST_EXIST);
 
-$nbenrolled = enrol_attributes_plugin::process_enrolments(null, $instanceid);
+enrol_attributes_plugin::validate_instance_course($enrolrecord, $courseid);
 
-ob_end_clean();
+$task = new \enrol_attributes\task\force_task();
+$task->set_custom_data(['instanceid' => (int)$instanceid]);
 
-if ($nbenrolled !== false) {
-    echo json_encode(get_string('ajax-okforced', 'enrol_attributes', $nbenrolled));
+if (\core\task\manager::queue_adhoc_task($task, true)) {
+    echo json_encode(get_string('ajax-okforced-background', 'enrol_attributes'));
 }
 else {
     echo json_encode(get_string('ajax-error', 'enrol_attributes'));

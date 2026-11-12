@@ -32,7 +32,7 @@ var enrol_attributes_purge = enrol_attributes_force = function () {
             $textarea = $("#id_customtext1");
 
         try {
-            var shib_boolconfig = eval('(' + $textarea.val() + ')');
+            var shib_boolconfig = JSON.parse($textarea.val() || '{}');
         }
         catch (e) {
             var shib_boolconfig = {"rules": ''};
